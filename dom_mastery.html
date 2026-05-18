@@ -1,0 +1,3177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DOM Mastery — Cheatsheet + Questions</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&family=DM+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --bg: #0c0f1a;
+      --surface: #131829;
+      --surface2: #1a2035;
+      --surface3: #202640;
+      --border: #2a3050;
+      --border2: #354070;
+      --accent: #00d4ff;
+      --accent2: #7c5cff;
+      --accent3: #ff6b9d;
+      --accent4: #00ff88;
+      --accent5: #ffbe0b;
+      --text: #e8eaf6;
+      --text2: #9aa3c2;
+      --text3: #5a6380;
+      --kw: #c792ea;
+      --str: #c3e88d;
+      --fn: #82aaff;
+      --num: #f78c6c;
+      --cmt: #546e7a;
+      --op: #89ddff;
+      --bool: #ff9cac;
+      --obj: #ffcb6b;
+      --tag-html: #ef9a9a;
+      --r: 12px;
+      --r2: 8px;
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--surface)
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 3px
+    }
+
+    /* LAYOUT */
+    .shell {
+      display: flex;
+      min-height: 100vh
+    }
+
+    .sidebar {
+      width: 240px;
+      min-width: 240px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    .main {
+      flex: 1;
+      overflow-x: hidden
+    }
+
+    /* SIDEBAR */
+    .logo {
+      padding: 0 1.25rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
+
+    .logo-badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(0, 212, 255, .1);
+      border: 1px solid rgba(0, 212, 255, .3);
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+
+    .logo-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text);
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 4px
+    }
+
+    .nav-section {
+      padding: 0 1rem .75rem
+    }
+
+    .nav-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text3);
+      padding: 0 .25rem .5rem;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: .4rem .5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text2);
+      transition: all .15s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover {
+      background: var(--surface2);
+      color: var(--text)
+    }
+
+    .nav-item.active {
+      background: rgba(0, 212, 255, .12);
+      color: var(--accent);
+      font-weight: 600
+    }
+
+    .nav-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text3);
+      transition: .15s;
+      flex-shrink: 0;
+    }
+
+    .nav-item.active .nav-dot,
+    .nav-item:hover .nav-dot {
+      background: var(--accent)
+    }
+
+    .nav-divider {
+      height: 1px;
+      background: var(--border);
+      margin: .75rem 1rem
+    }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 2.5rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 50%, rgba(0, 212, 255, .08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(124, 92, 255, .08) 0%, transparent 50%);
+    }
+
+    .hero-eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: .75rem;
+    }
+
+    .hero-title {
+      font-family: 'Fraunces', serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: .75rem;
+      background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+    }
+
+    .hero-desc {
+      font-size: 14px;
+      color: var(--text2);
+      max-width: 520px;
+      line-height: 1.7;
+      position: relative
+    }
+
+    .hero-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 1.25rem;
+      position: relative
+    }
+
+    .pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid;
+    }
+
+    .pill-cyan {
+      color: var(--accent);
+      border-color: rgba(0, 212, 255, .3);
+      background: rgba(0, 212, 255, .08)
+    }
+
+    .pill-purple {
+      color: var(--accent2);
+      border-color: rgba(124, 92, 255, .3);
+      background: rgba(124, 92, 255, .08)
+    }
+
+    .pill-green {
+      color: var(--accent4);
+      border-color: rgba(0, 255, 136, .3);
+      background: rgba(0, 255, 136, .08)
+    }
+
+    .pill-pink {
+      color: var(--accent3);
+      border-color: rgba(255, 107, 157, .3);
+      background: rgba(255, 107, 157, .08)
+    }
+
+    .pill-yellow {
+      color: var(--accent5);
+      border-color: rgba(255, 190, 11, .3);
+      background: rgba(255, 190, 11, .08)
+    }
+
+    /* CONTENT */
+    .content {
+      padding: 2rem 3rem;
+      max-width: 1100px
+    }
+
+    .section {
+      display: none
+    }
+
+    .section.active {
+      display: block
+    }
+
+    /* SECTION HEADER */
+    .sec-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 1.75rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sec-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .sec-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text)
+    }
+
+    .sec-sub {
+      font-size: 12px;
+      color: var(--text3);
+      margin-top: 2px
+    }
+
+    /* CARDS */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 14px;
+      margin-bottom: 1.5rem
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 1.5rem
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      opacity: 0;
+      transition: .2s;
+    }
+
+    .card:hover::before {
+      opacity: 1
+    }
+
+    .card-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: .75rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-title-purple {
+      color: var(--accent2)
+    }
+
+    .card-title-green {
+      color: var(--accent4)
+    }
+
+    .card-title-pink {
+      color: var(--accent3)
+    }
+
+    .card-title-yellow {
+      color: var(--accent5)
+    }
+
+    /* CODE */
+    pre {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11.5px;
+      line-height: 1.75;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 10px 14px;
+      overflow-x: auto;
+      white-space: pre;
+      margin: .5rem 0;
+    }
+
+    code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11.5px
+    }
+
+    .kw {
+      color: #c792ea
+    }
+
+    .str {
+      color: #c3e88d
+    }
+
+    .fn {
+      color: #82aaff
+    }
+
+    .num {
+      color: #f78c6c
+    }
+
+    .cmt {
+      color: #546e7a;
+      font-style: italic
+    }
+
+    .op {
+      color: #89ddff
+    }
+
+    .bool {
+      color: #ff9cac
+    }
+
+    .obj {
+      color: #ffcb6b
+    }
+
+    .prop {
+      color: #80cbc4
+    }
+
+    .tag {
+      color: #ef9a9a
+    }
+
+    .attr {
+      color: #ffcb6b
+    }
+
+    /* CALLOUTS */
+    .tip {
+      background: rgba(0, 212, 255, .06);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--text2);
+      margin: .75rem 0;
+      line-height: 1.65;
+    }
+
+    .warn {
+      background: rgba(255, 190, 11, .06);
+      border-left: 3px solid var(--accent5);
+      border-radius: 0 8px 8px 0;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--text2);
+      margin: .75rem 0;
+      line-height: 1.65;
+    }
+
+    .danger {
+      background: rgba(255, 107, 157, .06);
+      border-left: 3px solid var(--accent3);
+      border-radius: 0 8px 8px 0;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--text2);
+      margin: .75rem 0;
+      line-height: 1.65;
+    }
+
+    .good {
+      background: rgba(0, 255, 136, .06);
+      border-left: 3px solid var(--accent4);
+      border-radius: 0 8px 8px 0;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--text2);
+      margin: .75rem 0;
+      line-height: 1.65;
+    }
+
+    /* TOPIC HEADER */
+    .topic-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin: 1.75rem 0 .75rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .topic-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border)
+    }
+
+    /* METHOD TABLE */
+    .method-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px
+    }
+
+    .method-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      font-size: 12px;
+      padding: 5px 8px;
+      border-radius: 5px;
+      transition: .15s;
+    }
+
+    .method-row:hover {
+      background: var(--surface2)
+    }
+
+    .method-name {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--fn);
+      min-width: 160px;
+      flex-shrink: 0;
+    }
+
+    .method-desc {
+      color: var(--text2);
+      line-height: 1.5
+    }
+
+    /* BADGE */
+    .badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 3px;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      vertical-align: middle;
+      margin-left: 4px;
+    }
+
+    .badge-new {
+      background: rgba(0, 255, 136, .2);
+      color: var(--accent4)
+    }
+
+    .badge-imp {
+      background: rgba(255, 107, 157, .2);
+      color: var(--accent3)
+    }
+
+    .badge-perf {
+      background: rgba(255, 190, 11, .2);
+      color: var(--accent5)
+    }
+
+    .badge-old {
+      background: rgba(90, 99, 128, .3);
+      color: var(--text3)
+    }
+
+    /* QUESTION STYLES */
+    .q-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .q-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 1rem 1.1rem;
+      cursor: pointer;
+      transition: .15s;
+    }
+
+    .q-header:hover {
+      background: var(--surface2)
+    }
+
+    .q-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text3);
+      min-width: 28px;
+      flex-shrink: 0;
+      padding-top: 1px;
+    }
+
+    .q-text {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text);
+      flex: 1;
+      line-height: 1.5
+    }
+
+    .q-tag-wrap {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-top: 5px
+    }
+
+    .q-tag {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+
+    .qtag-easy {
+      background: rgba(0, 255, 136, .15);
+      color: var(--accent4)
+    }
+
+    .qtag-med {
+      background: rgba(255, 190, 11, .15);
+      color: var(--accent5)
+    }
+
+    .qtag-hard {
+      background: rgba(255, 107, 157, .15);
+      color: var(--accent3)
+    }
+
+    .qtag-topic {
+      background: rgba(0, 212, 255, .12);
+      color: var(--accent)
+    }
+
+    .q-arrow {
+      color: var(--text3);
+      flex-shrink: 0;
+      transition: .25s;
+      font-size: 16px
+    }
+
+    .q-arrow.open {
+      transform: rotate(180deg)
+    }
+
+    .q-body {
+      display: none;
+      padding: 0 1.1rem 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .q-body.open {
+      display: block
+    }
+
+    .q-answer {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.75;
+      margin-top: .75rem;
+    }
+
+    /* PRACTICE SECTION */
+    .practice-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px
+    }
+
+    .p-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .p-card-accent {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+    }
+
+    .p-header {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding-left: 12px
+    }
+
+    .p-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--text3);
+      font-weight: 600;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .p-content {
+      flex: 1
+    }
+
+    .p-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px
+    }
+
+    .p-desc {
+      font-size: 12.5px;
+      color: var(--text2);
+      line-height: 1.6;
+      margin-bottom: .5rem
+    }
+
+    .p-hint {
+      font-size: 11.5px;
+      color: var(--text3);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 10px;
+      margin-top: .5rem;
+      line-height: 1.5;
+    }
+
+    .p-hint strong {
+      color: var(--text2)
+    }
+
+    .p-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: .6rem
+    }
+
+    .p-tag {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 3px;
+    }
+
+    /* PROGRESS BAR */
+    .progress-strip {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .progress-label {
+      font-size: 12px;
+      color: var(--text2);
+      white-space: nowrap
+    }
+
+    .progress-bar-wrap {
+      flex: 1;
+      height: 6px;
+      background: var(--surface3);
+      border-radius: 3px;
+      overflow: hidden
+    }
+
+    .progress-bar {
+      height: 100%;
+      border-radius: 3px;
+      transition: .3s
+    }
+
+    .progress-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--text3);
+      white-space: nowrap
+    }
+
+    /* HIGHLIGHT */
+    .hl-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: .5rem 0
+    }
+
+    .hl {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11.5px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 3px 9px;
+      border-radius: 5px;
+      color: var(--op);
+    }
+
+    /* COMPARISON TABLE */
+    .cmp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      margin: .75rem 0
+    }
+
+    .cmp-table th {
+      background: var(--surface2);
+      color: var(--text2);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .cmp-table td {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      color: var(--text2);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+
+    .cmp-table tr:hover td {
+      background: var(--surface2)
+    }
+
+    .cmp-table code {
+      color: var(--fn);
+      background: var(--surface3);
+      padding: 1px 5px;
+      border-radius: 3px
+    }
+
+    /* ANIM */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    .section.active .content-inner {
+      animation: fadeIn .25s ease
+    }
+
+    /* RESPONSIVE */
+    @media(max-width:768px) {
+      .sidebar {
+        display: none
+      }
+
+      .content {
+        padding: 1.5rem
+      }
+
+      .hero {
+        padding: 1.5rem
+      }
+
+      .hero-title {
+        font-size: 2rem
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="shell">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <div class="logo">
+        <div class="logo-badge">DOM Mastery</div>
+        <div class="logo-title">JavaScript<br>DOM </div>
+        <div class="logo-sub">Cheatsheet · Questions · Practice</div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-label">📖 Cheatsheet</div>
+        <button class="nav-item active" onclick="showSection('selectors')"><span class="nav-dot"></span>Selecting
+          Elements</button>
+        <button class="nav-item" onclick="showSection('traversal')"><span class="nav-dot"></span>DOM Traversal</button>
+        <button class="nav-item" onclick="showSection('create')"><span class="nav-dot"></span>Create & Insert</button>
+        <button class="nav-item" onclick="showSection('modify')"><span class="nav-dot"></span>Modify Content</button>
+        <button class="nav-item" onclick="showSection('attributes')"><span class="nav-dot"></span>Attributes &
+          Data</button>
+        <button class="nav-item" onclick="showSection('classes')"><span class="nav-dot"></span>Classes & Styles</button>
+        <button class="nav-item" onclick="showSection('events')"><span class="nav-dot"></span>Events</button>
+        <button class="nav-item" onclick="showSection('forms')"><span class="nav-dot"></span>Forms & Input</button>
+        <button class="nav-item" onclick="showSection('dimensions')"><span class="nav-dot"></span>Dimensions &
+          Scroll</button>
+        <button class="nav-item" onclick="showSection('advanced')"><span class="nav-dot"></span>Advanced DOM</button>
+      </div>
+
+      <div class="nav-divider"></div>
+
+      <div class="nav-section">
+        <div class="nav-label">🎯 Interview Prep</div>
+        <button class="nav-item" onclick="showSection('interview-dom')"><span class="nav-dot"></span>DOM Questions
+          (10)</button>
+      </div>
+
+      <div class="nav-divider"></div>
+
+      <div class="nav-section">
+        <div class="nav-label">💪 Practice Problems</div>
+        <button class="nav-item" onclick="showSection('practice-arrays')"><span class="nav-dot"></span>Arrays & Loops
+          (10)</button>
+        <button class="nav-item" onclick="showSection('practice-dom')"><span class="nav-dot"></span>DOM Projects
+          (10)</button>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <div class="main">
+      <!-- HERO -->
+      <div class="hero">
+        <div class="hero-eyebrow">📄 JavaScript DOM </div>
+        <div class="hero-title">DOM Manipulation<br>Mastery Guide</div>
+        <div class="hero-desc">Complete reference covering every DOM API, event system, interview questions, and
+          real-world practice problems — from beginner to interview-ready.</div>
+        <div class="hero-pills">
+          <span class="pill pill-cyan">10 DOM Topics</span>
+          <span class="pill pill-purple">All DOM APIs</span>
+          <span class="pill pill-green">10 Interview Qs</span>
+          <span class="pill pill-pink">10 Array Problems</span>
+          <span class="pill pill-yellow">10 DOM Projects</span>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- SECTION: SELECTORS -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div class="section active" id="selectors">
+          <div class="content-inner">
+            <div class="sec-header">
+              <div class="sec-icon" style="background:rgba(0,212,255,.12)">🔍</div>
+              <div>
+                <div class="sec-title">Selecting Elements</div>
+                <div class="sec-sub">Every way to grab elements from the DOM</div>
+              </div>
+            </div>
+
+            <div class="topic-label">Modern Selectors (Use These)</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title">querySelector</div>
+                <pre><span class="cmt">// Returns FIRST match — CSS selector syntax</span>
+<span class="kw">const</span> btn = document.<span class="fn">querySelector</span>(<span class="str">'button'</span>);
+<span class="kw">const</span> box = document.<span class="fn">querySelector</span>(<span class="str">'#myId'</span>);
+<span class="kw">const</span> item = document.<span class="fn">querySelector</span>(<span class="str">'.active'</span>);
+<span class="kw">const</span> link = document.<span class="fn">querySelector</span>(<span class="str">'nav a'</span>);
+<span class="kw">const</span> inp = document.<span class="fn">querySelector</span>(<span class="str">'input[type="email"]'</span>);
+<span class="kw">const</span> nth = document.<span class="fn">querySelector</span>(<span class="str">'li:nth-child(2)'</span>);
+<span class="cmt">// Returns null if not found</span></pre>
+              </div>
+              <div class="card">
+                <div class="card-title">querySelectorAll</div>
+                <pre><span class="cmt">// Returns NodeList — ALL matches</span>
+<span class="kw">const</span> all = document.<span class="fn">querySelectorAll</span>(<span class="str">'li'</span>);
+<span class="kw">const</span> btns = document.<span class="fn">querySelectorAll</span>(<span class="str">'.btn'</span>);
+
+<span class="cmt">// NodeList is NOT an array — convert with:</span>
+<span class="kw">const</span> arr = [...all];          <span class="cmt">// spread</span>
+<span class="kw">const</span> arr2 = Array.<span class="fn">from</span>(all); <span class="cmt">// Array.from</span>
+
+<span class="cmt">// forEach works directly on NodeList</span>
+all.<span class="fn">forEach</span>(el => el.<span class="prop">style</span>.<span class="prop">color</span> = <span class="str">'red'</span>);</pre>
+              </div>
+            </div>
+
+            <div class="topic-label">Legacy Selectors (Still Used)</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title card-title-purple">By ID / Class / Tag</div>
+                <pre><span class="cmt">// Returns single Element</span>
+<span class="fn">getElementById</span>(<span class="str">'myId'</span>)
+
+<span class="cmt">// Returns HTMLCollection (live)</span>
+<span class="fn">getElementsByClassName</span>(<span class="str">'active'</span>)
+<span class="fn">getElementsByTagName</span>(<span class="str">'div'</span>)
+<span class="fn">getElementsByName</span>(<span class="str">'email'</span>)
+
+<span class="cmt">// HTMLCollection ≠ Array — convert it:</span>
+[...<span class="fn">getElementsByClassName</span>(<span class="str">'x'</span>)]</pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-yellow">HTMLCollection vs NodeList</div>
+                <table class="cmp-table">
+                  <tr>
+                    <th>Feature</th>
+                    <th>NodeList</th>
+                    <th>HTMLCollection</th>
+                  </tr>
+                  <tr>
+                    <td>Live?</td>
+                    <td>❌ Static</td>
+                    <td>✅ Live</td>
+                  </tr>
+                  <tr>
+                    <td>forEach()?</td>
+                    <td>✅ Yes</td>
+                    <td>❌ No</td>
+                  </tr>
+                  <tr>
+                    <td>Returned by</td>
+                    <td><code>qSA</code></td>
+                    <td><code>getElem*</code></td>
+                  </tr>
+                  <tr>
+                    <td>Has text nodes</td>
+                    <td>✅</td>
+                    <td>❌</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <div class="topic-label">Scoped Queries</div>
+            <div class="card">
+              <div class="card-title card-title-green">Query within an Element</div>
+              <pre><span class="cmt">// Scope to a container — much faster on large pages</span>
+<span class="kw">const</span> nav = document.<span class="fn">querySelector</span>(<span class="str">'nav'</span>);
+<span class="kw">const</span> links = nav.<span class="fn">querySelectorAll</span>(<span class="str">'a'</span>); <span class="cmt">// only inside nav</span>
+
+<span class="kw">const</span> card = document.<span class="fn">querySelector</span>(<span class="str">'.card'</span>);
+<span class="kw">const</span> heading = card.<span class="fn">querySelector</span>(<span class="str">'h2'</span>);  <span class="cmt">// only inside .card</span></pre>
+              <div class="tip">💡 Always scope queries when possible — avoids conflicts and is more performant.</div>
+            </div>
+
+            <div class="topic-label">Special DOM References</div>
+            <div class="grid-3">
+              <div class="card">
+                <div class="card-title">Document Node</div>
+                <pre><span class="prop">document</span>            <span class="cmt">// root</span>
+<span class="prop">document</span>.<span class="prop">body</span>       <span class="cmt">// &lt;body&gt;</span>
+<span class="prop">document</span>.<span class="prop">head</span>       <span class="cmt">// &lt;head&gt;</span>
+<span class="prop">document</span>.<span class="prop">html</span>       <span class="cmt">// &lt;html&gt;</span>
+<span class="prop">document</span>.<span class="prop">title</span>      <span class="cmt">// page title</span>
+<span class="prop">document</span>.<span class="prop">URL</span>        <span class="cmt">// page URL</span></pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-purple">Document Shortcuts</div>
+                <pre><span class="prop">document</span>.<span class="prop">forms</span>[<span class="num">0</span>]    <span class="cmt">// first form</span>
+<span class="prop">document</span>.<span class="prop">images</span>     <span class="cmt">// all images</span>
+<span class="prop">document</span>.<span class="prop">links</span>      <span class="cmt">// all &lt;a&gt;</span>
+<span class="prop">document</span>.<span class="prop">scripts</span>    <span class="cmt">// all scripts</span>
+<span class="prop">document</span>.<span class="prop">styleSheets</span> <span class="cmt">// stylesheets</span></pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-green">closest() & matches()</div>
+                <pre><span class="cmt">// Walk UP the tree</span>
+el.<span class="fn">closest</span>(<span class="str">'.card'</span>)  
+el.<span class="fn">closest</span>(<span class="str">'section'</span>)
+
+<span class="cmt">// Check if element matches</span>
+el.<span class="fn">matches</span>(<span class="str">'.active'</span>)
+el.<span class="fn">matches</span>(<span class="str">'input[required]'</span>)
+<span class="cmt">// returns true/false</span></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- SECTION: TRAVERSAL -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div class="section" id="traversal">
+          <div class="content-inner">
+            <div class="sec-header">
+              <div class="sec-icon" style="background:rgba(124,92,255,.12)">🌳</div>
+              <div>
+                <div class="sec-title">DOM Traversal</div>
+                <div class="sec-sub">Navigating the tree — parents, children, siblings</div>
+              </div>
+            </div>
+
+            <div class="topic-label">Parent Navigation</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title">parentNode vs parentElement</div>
+                <pre><span class="kw">const</span> el = document.<span class="fn">querySelector</span>(<span class="str">'li'</span>);
+
+el.<span class="prop">parentNode</span>     <span class="cmt">// parent — any node type</span>
+el.<span class="prop">parentElement</span>  <span class="cmt">// parent — only Elements</span>
+
+<span class="cmt">// Difference matters at root:</span>
+<span class="prop">document</span>.<span class="prop">documentElement</span>.<span class="prop">parentNode</span>    <span class="cmt">// #document</span>
+<span class="prop">document</span>.<span class="prop">documentElement</span>.<span class="prop">parentElement</span> <span class="cmt">// null</span>
+
+<span class="cmt">// Walk up chain:</span>
+el.<span class="prop">parentElement</span>.<span class="prop">parentElement</span></pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-purple">closest() for Ancestors</div>
+                <pre><span class="cmt">// Find nearest ancestor matching selector</span>
+<span class="kw">const</span> card = el.<span class="fn">closest</span>(<span class="str">'.card'</span>);
+<span class="kw">const</span> section = el.<span class="fn">closest</span>(<span class="str">'section'</span>);
+<span class="kw">const</span> form = el.<span class="fn">closest</span>(<span class="str">'form'</span>);
+
+<span class="cmt">// Includes the element itself!</span>
+<span class="kw">const</span> p = p.<span class="fn">closest</span>(<span class="str">'p'</span>); <span class="cmt">// returns p itself</span>
+
+<span class="cmt">// Returns null if not found</span>
+<span class="kw">if</span>(el.<span class="fn">closest</span>(<span class="str">'.modal'</span>)) { <span class="cmt">/* inside modal */</span> }</pre>
+              </div>
+            </div>
+
+            <div class="topic-label">Children Navigation</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title card-title-green">children vs childNodes</div>
+                <pre><span class="kw">const</span> ul = document.<span class="fn">querySelector</span>(<span class="str">'ul'</span>);
+
+<span class="cmt">// Element children only (HTMLCollection)</span>
+ul.<span class="prop">children</span>         <span class="cmt">// live HTMLCollection</span>
+ul.<span class="prop">children</span>[<span class="num">0</span>]      <span class="cmt">// first element child</span>
+ul.<span class="prop">childElementCount</span> <span class="cmt">// count</span>
+
+<span class="cmt">// All nodes incl. text, comments (NodeList)</span>
+ul.<span class="prop">childNodes</span>        <span class="cmt">// includes whitespace text!</span>
+
+<span class="cmt">// First/Last element shortcuts</span>
+ul.<span class="prop">firstElementChild</span>  <span class="cmt">// ✅ use this</span>
+ul.<span class="prop">lastElementChild</span>   <span class="cmt">// ✅ use this</span>
+ul.<span class="prop">firstChild</span>         <span class="cmt">// ⚠️ may be text node</span></pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-yellow">Iterating Children</div>
+                <pre><span class="kw">const</span> ul = document.<span class="fn">querySelector</span>(<span class="str">'ul'</span>);
+
+<span class="cmt">// Best: spread children into array</span>
+[...ul.<span class="prop">children</span>].<span class="fn">forEach</span>(li => {
+  console.<span class="fn">log</span>(li.<span class="prop">textContent</span>);
+});
+
+<span class="cmt">// Or use for...of directly</span>
+<span class="kw">for</span>(<span class="kw">const</span> li <span class="kw">of</span> ul.<span class="prop">children</span>) {
+  li.<span class="prop">style</span>.<span class="prop">color</span> = <span class="str">'blue'</span>;
+}
+
+<span class="cmt">// Array methods on children</span>
+<span class="kw">const</span> texts = [...ul.<span class="prop">children</span>].<span class="fn">map</span>(li => li.<span class="prop">textContent</span>);</pre>
+              </div>
+            </div>
+
+            <div class="topic-label">Sibling Navigation</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title">nextSibling vs nextElementSibling</div>
+                <pre><span class="kw">const</span> el = document.<span class="fn">querySelector</span>(<span class="str">'li.active'</span>);
+
+<span class="cmt">// ✅ Use Element versions (skip text nodes)</span>
+el.<span class="prop">nextElementSibling</span>      <span class="cmt">// next element</span>
+el.<span class="prop">previousElementSibling</span>   <span class="cmt">// previous element</span>
+
+<span class="cmt">// ⚠️ Node versions include text/comments</span>
+el.<span class="prop">nextSibling</span>      <span class="cmt">// could be text node</span>
+el.<span class="prop">previousSibling</span>  <span class="cmt">// could be text node</span>
+
+<span class="cmt">// Walk all siblings</span>
+<span class="kw">let</span> sib = el.<span class="prop">nextElementSibling</span>;
+<span class="kw">while</span>(sib) {
+  console.<span class="fn">log</span>(sib);
+  sib = sib.<span class="prop">nextElementSibling</span>;
+}</pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-pink">Full Tree Map</div>
+                <pre><span class="cmt">/* NODE TREE REFERENCE
+ *
+ *  parentNode / parentElement
+ *         ↑
+ *    [grandparent]
+ *         |
+ *    [  PARENT  ]
+ *    /           \
+ * [prev]  [EL]  [next]
+ *  sib           sib
+ *           |
+ *     [child1][child2]
+ *     firstElementChild
+ *      lastElementChild
+ */</span>
+
+<span class="cmt">// Check if has children</span>
+el.<span class="fn">hasChildNodes</span>()  <span class="cmt">// true/false</span>
+el.<span class="prop">children</span>.<span class="prop">length</span> === <span class="num">0</span></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- SECTION: CREATE & INSERT -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div class="section" id="create">
+          <div class="content-inner">
+            <div class="sec-header">
+              <div class="sec-icon" style="background:rgba(0,255,136,.12)">🏗️</div>
+              <div>
+                <div class="sec-title">Create & Insert Elements</div>
+                <div class="sec-sub">Building and placing new nodes in the DOM</div>
+              </div>
+            </div>
+
+            <div class="topic-label">Creating Nodes</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title">createElement</div>
+                <pre><span class="cmt">// Create any HTML element</span>
+<span class="kw">const</span> div = document.<span class="fn">createElement</span>(<span class="str">'div'</span>);
+<span class="kw">const</span> btn = document.<span class="fn">createElement</span>(<span class="str">'button'</span>);
+<span class="kw">const</span> img = document.<span class="fn">createElement</span>(<span class="str">'img'</span>);
+
+<span class="cmt">// Build it up before inserting</span>
+div.<span class="prop">classList</span>.<span class="fn">add</span>(<span class="str">'card'</span>);
+div.<span class="prop">textContent</span> = <span class="str">'Hello'</span>;
+div.<span class="fn">setAttribute</span>(<span class="str">'id'</span>, <span class="str">'myCard'</span>);
+
+<span class="cmt">// Other node types</span>
+document.<span class="fn">createTextNode</span>(<span class="str">'text'</span>);
+document.<span class="fn">createComment</span>(<span class="str">'note'</span>);
+document.<span class="fn">createDocumentFragment</span>();</pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-purple">Real-World Pattern</div>
+                <pre><span class="cmt">// Complete create → configure → insert</span>
+<span class="kw">function</span> <span class="fn">createCard</span>(title, body) {
+  <span class="kw">const</span> card = document.<span class="fn">createElement</span>(<span class="str">'div'</span>);
+  card.<span class="prop">className</span> = <span class="str">'card'</span>;
+
+  <span class="kw">const</span> h2 = document.<span class="fn">createElement</span>(<span class="str">'h2'</span>);
+  h2.<span class="prop">textContent</span> = title;
+
+  <span class="kw">const</span> p = document.<span class="fn">createElement</span>(<span class="str">'p'</span>);
+  p.<span class="prop">textContent</span> = body;
+
+  card.<span class="fn">append</span>(h2, p);  <span class="cmt">// append multiple</span>
+  <span class="kw">return</span> card;
+}
+document.<span class="prop">body</span>.<span class="fn">append</span>(<span class="fn">createCard</span>(<span class="str">'Hi'</span>, <span class="str">'World'</span>));</pre>
+              </div>
+            </div>
+
+            <div class="topic-label">Inserting Elements</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title card-title-green">append / prepend (Modern ✅)</div>
+                <pre><span class="kw">const</span> ul = document.<span class="fn">querySelector</span>(<span class="str">'ul'</span>);
+<span class="kw">const</span> li = document.<span class="fn">createElement</span>(<span class="str">'li'</span>);
+li.<span class="prop">textContent</span> = <span class="str">'New item'</span>;
+
+<span class="cmt">// append() — adds to END, accepts multiple</span>
+ul.<span class="fn">append</span>(li);                    <span class="cmt">// element</span>
+ul.<span class="fn">append</span>(<span class="str">'text'</span>);               <span class="cmt">// text string!</span>
+ul.<span class="fn">append</span>(li1, li2, <span class="str">'text'</span>);    <span class="cmt">// multiple args</span>
+
+<span class="cmt">// prepend() — adds to START</span>
+ul.<span class="fn">prepend</span>(li);
+
+<span class="cmt">// before() / after() — relative to element</span>
+li.<span class="fn">before</span>(newEl);   <span class="cmt">// insert before li</span>
+li.<span class="fn">after</span>(newEl);    <span class="cmt">// insert after li</span></pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-yellow">appendChild / insertBefore (Legacy)</div>
+                <pre><span class="cmt">// appendChild — adds to end, one node only</span>
+parent.<span class="fn">appendChild</span>(child);
+
+<span class="cmt">// insertBefore(newNode, referenceNode)</span>
+parent.<span class="fn">insertBefore</span>(newEl, existingEl);
+
+<span class="cmt">// Insert at end with insertBefore</span>
+parent.<span class="fn">insertBefore</span>(newEl, <span class="bool">null</span>);
+
+<span class="cmt">// vs append() — returns nothing</span>
+<span class="cmt">// append() returns undefined</span>
+<span class="cmt">// appendChild() returns appended node</span>
+<span class="kw">const</span> appended = parent.<span class="fn">appendChild</span>(node);</pre>
+              </div>
+            </div>
+
+            <div class="topic-label">insertAdjacentHTML / Element / Text</div>
+            <div class="card">
+              <div class="card-title">4 Insert Positions</div>
+              <pre><span class="cmt">/* Position strings:
+   "beforebegin"  — before the element itself
+   "afterbegin"   — inside element, before first child
+   "beforeend"    — inside element, after last child
+   "afterend"     — after the element itself        */</span>
+
+el.<span class="fn">insertAdjacentHTML</span>(<span class="str">'beforebegin'</span>, <span class="str">'&lt;p&gt;Before&lt;/p&gt;'</span>);
+el.<span class="fn">insertAdjacentHTML</span>(<span class="str">'afterbegin'</span>,  <span class="str">'&lt;span&gt;First inside&lt;/span&gt;'</span>);
+el.<span class="fn">insertAdjacentHTML</span>(<span class="str">'beforeend'</span>,   <span class="str">'&lt;span&gt;Last inside&lt;/span&gt;'</span>);
+el.<span class="fn">insertAdjacentHTML</span>(<span class="str">'afterend'</span>,    <span class="str">'&lt;p&gt;After&lt;/p&gt;'</span>);
+
+<span class="cmt">// Same positions for elements and text:</span>
+el.<span class="fn">insertAdjacentElement</span>(<span class="str">'afterend'</span>, newEl);
+el.<span class="fn">insertAdjacentText</span>(<span class="str">'beforeend'</span>, <span class="str">'safe text'</span>);
+
+<span class="cmt">/* insertAdjacentHTML is FAST — doesn't re-parse existing DOM */</span></pre>
+              <div class="warn">⚠️ insertAdjacentHTML with user input = XSS risk. Sanitize first or use
+                insertAdjacentText.</div>
+            </div>
+
+            <div class="topic-label">DocumentFragment — Performance Pattern</div>
+            <div class="card">
+              <div class="card-title card-title-pink">Batch Insert with Fragment</div>
+              <pre><span class="cmt">// Without fragment — 100 DOM updates (slow!)</span>
+<span class="kw">const</span> ul = document.<span class="fn">querySelector</span>(<span class="str">'ul'</span>);
+data.<span class="fn">forEach</span>(item => {
+  <span class="kw">const</span> li = document.<span class="fn">createElement</span>(<span class="str">'li'</span>);
+  li.<span class="prop">textContent</span> = item;
+  ul.<span class="fn">appendChild</span>(li);  <span class="cmt">// ← repaints each time</span>
+});
+
+<span class="cmt">// With fragment — 1 DOM update (fast! ✅)</span>
+<span class="kw">const</span> frag = document.<span class="fn">createDocumentFragment</span>();
+data.<span class="fn">forEach</span>(item => {
+  <span class="kw">const</span> li = document.<span class="fn">createElement</span>(<span class="str">'li'</span>);
+  li.<span class="prop">textContent</span> = item;
+  frag.<span class="fn">appendChild</span>(li);  <span class="cmt">// ← in memory only</span>
+});
+ul.<span class="fn">appendChild</span>(frag);    <span class="cmt">// ← ONE repaint</span></pre>
+              <div class="good">✅ Use DocumentFragment when inserting multiple elements in a loop — massive performance
+                win on large lists.</div>
+            </div>
+
+            <div class="topic-label">Cloning & Removing</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title">cloneNode</div>
+                <pre><span class="cmt">// Shallow clone (no children)</span>
+<span class="kw">const</span> copy = el.<span class="fn">cloneNode</span>(<span class="bool">false</span>);
+
+<span class="cmt">// Deep clone (with all children)</span>
+<span class="kw">const</span> deepCopy = el.<span class="fn">cloneNode</span>(<span class="bool">true</span>);
+
+<span class="cmt">// Clone a template card</span>
+<span class="kw">const</span> template = document.<span class="fn">querySelector</span>(<span class="str">'.template-card'</span>);
+<span class="kw">const</span> newCard = template.<span class="fn">cloneNode</span>(<span class="bool">true</span>);
+newCard.<span class="fn">querySelector</span>(<span class="str">'h2'</span>).<span class="prop">textContent</span> = <span class="str">'New Title'</span>;
+container.<span class="fn">append</span>(newCard);</pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-pink">remove / removeChild / replaceWith</div>
+                <pre><span class="cmt">// Remove element itself (Modern ✅)</span>
+el.<span class="fn">remove</span>();
+
+<span class="cmt">// Remove child (Legacy)</span>
+parent.<span class="fn">removeChild</span>(child);
+
+<span class="cmt">// Replace element</span>
+el.<span class="fn">replaceWith</span>(newEl);      <span class="cmt">// modern ✅</span>
+parent.<span class="fn">replaceChild</span>(newEl, el); <span class="cmt">// legacy</span>
+
+<span class="cmt">// Clear all children (fastest)</span>
+ul.<span class="prop">innerHTML</span> = <span class="str">''</span>;
+<span class="cmt">// or</span>
+<span class="kw">while</span>(ul.<span class="prop">firstChild</span>) ul.<span class="prop">firstChild</span>.<span class="fn">remove</span>();</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- SECTION: MODIFY CONTENT -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div class="section" id="modify">
+          <div class="content-inner">
+            <div class="sec-header">
+              <div class="sec-icon" style="background:rgba(255,190,11,.12)">✏️</div>
+              <div>
+                <div class="sec-title">Modify Content</div>
+                <div class="sec-sub">innerHTML, textContent, innerText and more</div>
+              </div>
+            </div>
+
+            <div class="topic-label">The Big Three</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title">innerHTML</div>
+                <pre><span class="cmt">// READ: gets HTML string including tags</span>
+div.<span class="prop">innerHTML</span>   <span class="cmt">// "&lt;b&gt;Hello&lt;/b&gt;"</span>
+
+<span class="cmt">// WRITE: parses and renders HTML</span>
+div.<span class="prop">innerHTML</span> = <span class="str">'&lt;b&gt;Bold&lt;/b&gt; text'</span>;
+div.<span class="prop">innerHTML</span> = <span class="str">''</span>;  <span class="cmt">// clear content</span>
+
+<span class="cmt">// Template literal pattern:</span>
+div.<span class="prop">innerHTML</span> = <span class="str">`
+  &lt;h2&gt;<span class="num">${</span>user.name<span class="num">}</span>&lt;/h2&gt;
+  &lt;p&gt;<span class="num">${</span>user.bio<span class="num">}</span>&lt;/p&gt;
+`</span>;</pre>
+                <div class="danger">🚨 XSS Risk: Never put user input directly into innerHTML. Use textContent for user
+                  data.</div>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-green">textContent vs innerText</div>
+                <pre><span class="cmt">// textContent — raw text, ignores CSS</span>
+el.<span class="prop">textContent</span>          <span class="cmt">// returns all text</span>
+el.<span class="prop">textContent</span> = <span class="str">'Hi'</span>  <span class="cmt">// safe from XSS ✅</span>
+
+<span class="cmt">// innerText — aware of CSS visibility</span>
+el.<span class="prop">innerText</span>            <span class="cmt">// respects display:none</span>
+el.<span class="prop">innerText</span> = <span class="str">'Hi'</span>    <span class="cmt">// triggers layout</span></pre>
+                <table class="cmp-table" style="margin-top:.5rem">
+                  <tr>
+                    <th></th>
+                    <th>textContent</th>
+                    <th>innerText</th>
+                  </tr>
+                  <tr>
+                    <td>Hidden els</td>
+                    <td>✅ Included</td>
+                    <td>❌ Excluded</td>
+                  </tr>
+                  <tr>
+                    <td>Performance</td>
+                    <td>⚡ Fast</td>
+                    <td>🐢 Slow</td>
+                  </tr>
+                  <tr>
+                    <td>Parses HTML</td>
+                    <td>❌ No</td>
+                    <td>❌ No</td>
+                  </tr>
+                  <tr>
+                    <td>Use when</td>
+                    <td>Most cases</td>
+                    <td>Screen text</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <div class="topic-label">outerHTML & outerText</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title card-title-yellow">outerHTML</div>
+                <pre><span class="cmt">// Includes the element itself</span>
+el.<span class="prop">outerHTML</span>  <span class="cmt">// "&lt;div class="x"&gt;Hi&lt;/div&gt;"</span>
+
+<span class="cmt">// REPLACE element by assigning outerHTML</span>
+el.<span class="prop">outerHTML</span> = <span class="str">'&lt;p&gt;Replaced!&lt;/p&gt;'</span>;
+<span class="cmt">// el now points to detached node!</span>
+
+<span class="cmt">// innerHTML vs outerHTML</span>
+<span class="cmt">// innerHTML — content inside element</span>
+<span class="cmt">// outerHTML — element + its content</span></pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-pink">value (Inputs)</div>
+                <pre><span class="cmt">// For form elements use .value</span>
+<span class="kw">const</span> input = document.<span class="fn">querySelector</span>(<span class="str">'input'</span>);
+input.<span class="prop">value</span>           <span class="cmt">// current value</span>
+input.<span class="prop">value</span> = <span class="str">'new'</span>  <span class="cmt">// set value</span>
+
+<span class="cmt">// Other form properties</span>
+checkbox.<span class="prop">checked</span>      <span class="cmt">// true/false</span>
+select.<span class="prop">value</span>          <span class="cmt">// selected option</span>
+textarea.<span class="prop">value</span>        <span class="cmt">// textarea content</span>
+input.<span class="prop">defaultValue</span>   <span class="cmt">// HTML attribute value</span></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- SECTION: ATTRIBUTES -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div class="section" id="attributes">
+          <div class="content-inner">
+            <div class="sec-header">
+              <div class="sec-icon" style="background:rgba(255,107,157,.12)">🏷️</div>
+              <div>
+                <div class="sec-title">Attributes & Data</div>
+                <div class="sec-sub">HTML attributes, properties, and dataset</div>
+              </div>
+            </div>
+
+            <div class="topic-label">Attribute Methods</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title">get / set / remove / has</div>
+                <pre><span class="kw">const</span> el = document.<span class="fn">querySelector</span>(<span class="str">'img'</span>);
+
+<span class="cmt">// Get attribute value (string or null)</span>
+el.<span class="fn">getAttribute</span>(<span class="str">'src'</span>)         <span class="cmt">// → "/img.png"</span>
+el.<span class="fn">getAttribute</span>(<span class="str">'alt'</span>)         <span class="cmt">// → "text"</span>
+
+<span class="cmt">// Set attribute</span>
+el.<span class="fn">setAttribute</span>(<span class="str">'src'</span>, <span class="str">'/new.png'</span>);
+el.<span class="fn">setAttribute</span>(<span class="str">'disabled'</span>, <span class="str">''</span>); <span class="cmt">// boolean</span>
+
+<span class="cmt">// Remove attribute</span>
+el.<span class="fn">removeAttribute</span>(<span class="str">'disabled'</span>);
+
+<span class="cmt">// Check attribute exists</span>
+el.<span class="fn">hasAttribute</span>(<span class="str">'hidden'</span>)   <span class="cmt">// true/false</span>
+
+<span class="cmt">// Get all attributes</span>
+el.<span class="prop">attributes</span>  <span class="cmt">// NamedNodeMap</span></pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-purple">Attr vs Property</div>
+                <pre><span class="cmt">// Attributes: HTML string representation</span>
+<span class="cmt">// Properties: JS live value</span>
+
+<span class="cmt">// Example:</span>
+<span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="str">"text"</span> <span class="attr">value</span>=<span class="str">"initial"</span><span class="tag">&gt;</span>
+input.<span class="fn">getAttribute</span>(<span class="str">'value'</span>)  <span class="cmt">// "initial" (always)</span>
+input.<span class="prop">value</span>                  <span class="cmt">// current typed value</span>
+
+<span class="cmt">// Boolean attr: presence = true</span>
+<span class="tag">&lt;button</span> <span class="attr">disabled</span><span class="tag">&gt;</span>
+btn.<span class="fn">hasAttribute</span>(<span class="str">'disabled'</span>) <span class="cmt">// true</span>
+btn.<span class="prop">disabled</span>                 <span class="cmt">// true (property)</span>
+
+<span class="cmt">// Reflect pattern: use properties for live state</span>
+checkbox.<span class="prop">checked</span> = <span class="bool">true</span>;   <span class="cmt">// ✅ use property</span></pre>
+              </div>
+            </div>
+
+            <div class="topic-label">dataset (data-* attributes)</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title card-title-green">Reading & Writing dataset</div>
+                <pre><span class="cmt">// HTML: data-user-id="42" data-is-active="true"</span>
+<span class="kw">const</span> el = document.<span class="fn">querySelector</span>(<span class="str">'[data-user-id]'</span>);
+
+<span class="cmt">// Read — camelCase conversion auto</span>
+el.<span class="prop">dataset</span>.<span class="prop">userId</span>    <span class="cmt">// "42" (always string!)</span>
+el.<span class="prop">dataset</span>.<span class="prop">isActive</span>  <span class="cmt">// "true"</span>
+
+<span class="cmt">// Write</span>
+el.<span class="prop">dataset</span>.<span class="prop">userId</span> = <span class="num">99</span>;
+el.<span class="prop">dataset</span>.<span class="prop">newProp</span> = <span class="str">'hello'</span>;
+<span class="cmt">// → adds data-new-prop="hello"</span>
+
+<span class="cmt">// Delete</span>
+<span class="kw">delete</span> el.<span class="prop">dataset</span>.<span class="prop">userId</span>;
+
+<span class="cmt">// Query by dataset</span>
+document.<span class="fn">querySelector</span>(<span class="str">'[data-user-id="42"]'</span>);</pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-yellow">Real-World dataset Pattern</div>
+                <pre><span class="cmt">// Pass data to event handlers via dataset</span>
+<span class="tag">&lt;button</span> <span class="attr">data-id</span>=<span class="str">"5"</span> <span class="attr">data-action</span>=<span class="str">"delete"</span><span class="tag">&gt;</span>Del<span class="tag">&lt;/button&gt;</span>
+
+document.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, e => {
+  <span class="kw">const</span> { id, action } = e.<span class="prop">target</span>.<span class="prop">dataset</span>;
+  <span class="kw">if</span>(action === <span class="str">'delete'</span>) {
+    <span class="fn">deleteItem</span>(Number(id));
+  }
+});
+
+<span class="cmt">// State management pattern</span>
+card.<span class="prop">dataset</span>.<span class="prop">expanded</span> = <span class="str">'false'</span>;
+<span class="kw">const</span> isOpen = card.<span class="prop">dataset</span>.<span class="prop">expanded</span> === <span class="str">'true'</span>;</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- SECTION: CLASSES & STYLES -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div class="section" id="classes">
+          <div class="content-inner">
+            <div class="sec-header">
+              <div class="sec-icon" style="background:rgba(124,92,255,.12)">🎨</div>
+              <div>
+                <div class="sec-title">Classes & Styles</div>
+                <div class="sec-sub">classList, inline styles, computed styles</div>
+              </div>
+            </div>
+
+            <div class="topic-label">classList API</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title">All classList Methods</div>
+                <pre><span class="kw">const</span> el = document.<span class="fn">querySelector</span>(<span class="str">'.box'</span>);
+
+el.<span class="prop">classList</span>.<span class="fn">add</span>(<span class="str">'active'</span>);           <span class="cmt">// add class</span>
+el.<span class="prop">classList</span>.<span class="fn">add</span>(<span class="str">'a'</span>, <span class="str">'b'</span>, <span class="str">'c'</span>);    <span class="cmt">// add multiple</span>
+el.<span class="prop">classList</span>.<span class="fn">remove</span>(<span class="str">'active'</span>);        <span class="cmt">// remove class</span>
+el.<span class="prop">classList</span>.<span class="fn">remove</span>(<span class="str">'a'</span>, <span class="str">'b'</span>);       <span class="cmt">// remove multiple</span>
+el.<span class="prop">classList</span>.<span class="fn">toggle</span>(<span class="str">'open'</span>);         <span class="cmt">// add if absent, remove if present</span>
+el.<span class="prop">classList</span>.<span class="fn">toggle</span>(<span class="str">'open'</span>, <span class="bool">true</span>);  <span class="cmt">// force add</span>
+el.<span class="prop">classList</span>.<span class="fn">toggle</span>(<span class="str">'open'</span>, <span class="bool">false</span>); <span class="cmt">// force remove</span>
+el.<span class="prop">classList</span>.<span class="fn">contains</span>(<span class="str">'active'</span>);    <span class="cmt">// true/false</span>
+el.<span class="prop">classList</span>.<span class="fn">replace</span>(<span class="str">'old'</span>, <span class="str">'new'</span>); <span class="cmt">// swap class</span>
+el.<span class="prop">classList</span>.<span class="prop">length</span>;                 <span class="cmt">// count</span>
+el.<span class="prop">classList</span>.<span class="fn">item</span>(<span class="num">0</span>);               <span class="cmt">// class at index</span>
+[...el.<span class="prop">classList</span>];                   <span class="cmt">// array of classes</span></pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-purple">className (String Approach)</div>
+                <pre><span class="cmt">// className — full class string</span>
+el.<span class="prop">className</span>                   <span class="cmt">// "card active big"</span>
+el.<span class="prop">className</span> = <span class="str">'card active'</span>   <span class="cmt">// REPLACE all classes</span>
+el.<span class="prop">className</span> += <span class="str">' new'</span>          <span class="cmt">// append</span>
+el.<span class="prop">className</span> = <span class="str">''</span>               <span class="cmt">// clear all classes</span>
+
+<span class="cmt">// Conditional class (common pattern)</span>
+el.<span class="prop">className</span> = <span class="str">`card <span class="num">${</span>isActive ? <span class="str">'active'</span> : <span class="str">''</span><span class="num">}</span>`</span>;
+
+<span class="cmt">// ✅ classList is preferred over className</span>
+<span class="cmt">// className replaces ALL classes at once</span>
+<span class="cmt">// classList is surgical — modifies one class</span></pre>
+              </div>
+            </div>
+
+            <div class="topic-label">Inline Styles</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title card-title-green">style Property</div>
+                <pre><span class="cmt">// Set individual styles (camelCase!)</span>
+el.<span class="prop">style</span>.<span class="prop">color</span> = <span class="str">'red'</span>;
+el.<span class="prop">style</span>.<span class="prop">backgroundColor</span> = <span class="str">'#000'</span>;
+el.<span class="prop">style</span>.<span class="prop">fontSize</span> = <span class="str">'16px'</span>;
+el.<span class="prop">style</span>.<span class="prop">marginTop</span> = <span class="str">'20px'</span>;
+el.<span class="prop">style</span>.<span class="prop">display</span> = <span class="str">'none'</span>;
+el.<span class="prop">style</span>.<span class="prop">display</span> = <span class="str">''</span>;    <span class="cmt">// REMOVE inline style</span>
+
+<span class="cmt">// Set multiple with cssText</span>
+el.<span class="prop">style</span>.<span class="prop">cssText</span> = <span class="str">'color:red; font-size:16px;'</span>;
+
+<span class="cmt">// CSS property → JS camelCase</span>
+<span class="cmt">// background-color → backgroundColor</span>
+<span class="cmt">// font-size → fontSize</span>
+<span class="cmt">// z-index → zIndex</span>
+<span class="cmt">// border-top-left-radius → borderTopLeftRadius</span></pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-yellow">getComputedStyle</div>
+                <pre><span class="cmt">// Get ACTUAL computed styles (after CSS)</span>
+<span class="cmt">// Includes inherited + stylesheet styles</span>
+<span class="kw">const</span> styles = window.<span class="fn">getComputedStyle</span>(el);
+
+styles.<span class="fn">getPropertyValue</span>(<span class="str">'color'</span>)        <span class="cmt">// "rgb(0,0,0)"</span>
+styles.<span class="fn">getPropertyValue</span>(<span class="str">'font-size'</span>)   <span class="cmt">// "16px"</span>
+styles.<span class="fn">getPropertyValue</span>(<span class="str">'display'</span>)     <span class="cmt">// "block"</span>
+
+<span class="cmt">// Shorthand (same thing)</span>
+styles.<span class="prop">color</span>
+styles.<span class="prop">fontSize</span>
+
+<span class="cmt">// Check visibility</span>
+<span class="kw">const</span> visible = styles.<span class="prop">display</span> !== <span class="str">'none'</span>
+             && styles.<span class="prop">visibility</span> !== <span class="str">'hidden'</span>;</pre>
+              </div>
+            </div>
+
+            <div class="topic-label">CSS Custom Properties via JS</div>
+            <div class="card">
+              <div class="card-title card-title-pink">CSS Variables in JS</div>
+              <pre><span class="cmt">// Read CSS custom property</span>
+<span class="kw">const</span> root = document.<span class="prop">documentElement</span>;
+window.<span class="fn">getComputedStyle</span>(root).<span class="fn">getPropertyValue</span>(<span class="str">'--primary'</span>); <span class="cmt">// " #00d4ff"</span>
+
+<span class="cmt">// Set CSS custom property (affects ALL elements using it)</span>
+root.<span class="prop">style</span>.<span class="fn">setProperty</span>(<span class="str">'--primary'</span>, <span class="str">'#ff6b9d'</span>);
+
+<span class="cmt">// Remove CSS custom property</span>
+root.<span class="prop">style</span>.<span class="fn">removeProperty</span>(<span class="str">'--primary'</span>);
+
+<span class="cmt">// Theme switcher pattern:</span>
+<span class="kw">function</span> <span class="fn">setTheme</span>(theme) {
+  <span class="prop">document</span>.<span class="prop">documentElement</span>.<span class="prop">dataset</span>.<span class="prop">theme</span> = theme;
+  root.<span class="prop">style</span>.<span class="fn">setProperty</span>(<span class="str">'--bg'</span>, theme === <span class="str">'dark'</span> ? <span class="str">'#000'</span> : <span class="str">'#fff'</span>);
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- SECTION: EVENTS -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div class="section" id="events">
+          <div class="content-inner">
+            <div class="sec-header">
+              <div class="sec-icon" style="background:rgba(0,255,136,.12)">⚡</div>
+              <div>
+                <div class="sec-title">Events</div>
+                <div class="sec-sub">The complete event system — listeners, propagation, delegation</div>
+              </div>
+            </div>
+
+            <div class="topic-label">addEventListener</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title">Core Syntax</div>
+                <pre><span class="cmt">// addEventListener(type, handler, options)</span>
+el.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, handler);
+
+<span class="cmt">// Options object (3rd argument)</span>
+el.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, handler, {
+  once:    <span class="bool">true</span>,   <span class="cmt">// auto-remove after first fire</span>
+  capture: <span class="bool">false</span>,  <span class="cmt">// bubble phase (default)</span>
+  passive: <span class="bool">true</span>,   <span class="cmt">// can't call preventDefault (perf!)</span>
+});
+
+<span class="cmt">// Remove listener (must be SAME reference!)</span>
+<span class="kw">function</span> <span class="fn">handler</span>(e) { <span class="cmt">/* ... */</span> }
+el.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, handler);
+el.<span class="fn">removeEventListener</span>(<span class="str">'click'</span>, handler); <span class="cmt">// ✅ works</span>
+
+<span class="cmt">// ❌ Arrow function in both — WON'T remove!</span>
+el.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, () => {});
+el.<span class="fn">removeEventListener</span>(<span class="str">'click'</span>, () => {}); <span class="cmt">// ❌</span></pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-purple">Event Object (e)</div>
+                <pre><span class="kw">el</span>.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>(e) {
+  e.<span class="prop">target</span>          <span class="cmt">// element clicked</span>
+  e.<span class="prop">currentTarget</span>   <span class="cmt">// element with listener</span>
+  e.<span class="prop">type</span>            <span class="cmt">// "click"</span>
+  e.<span class="prop">timeStamp</span>       <span class="cmt">// ms since page load</span>
+  e.<span class="prop">bubbles</span>         <span class="cmt">// does it bubble?</span>
+  e.<span class="prop">cancelable</span>      <span class="cmt">// can be cancelled?</span>
+
+  <span class="cmt">// Stop propagation</span>
+  e.<span class="fn">stopPropagation</span>();       <span class="cmt">// stop bubbling</span>
+  e.<span class="fn">stopImmediatePropagation</span>(); <span class="cmt">// stop all handlers</span>
+
+  <span class="cmt">// Prevent default behavior</span>
+  e.<span class="fn">preventDefault</span>();       <span class="cmt">// e.g. stop form submit</span>
+});</pre>
+              </div>
+            </div>
+
+            <div class="topic-label">Event Propagation</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title card-title-yellow">Bubbling & Capturing</div>
+                <pre><span class="cmt">/* Event flow:
+ * 1. CAPTURE phase: window → document → body → el
+ * 2. TARGET phase: at the element itself
+ * 3. BUBBLE phase: el → body → document → window */</span>
+
+<span class="cmt">// Capture phase listener</span>
+parent.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, fn, <span class="bool">true</span>);
+
+<span class="cmt">// Bubble phase (default)</span>
+parent.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, fn, <span class="bool">false</span>);
+
+<span class="cmt">// Stop at element, don't bubble up</span>
+btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, e => {
+  e.<span class="fn">stopPropagation</span>();
+  <span class="cmt">// parent won't hear this click</span>
+});</pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-green">Event Delegation ⭐ KEY PATTERN</div>
+                <pre><span class="cmt">// Instead of 100 listeners (bad):</span>
+items.<span class="fn">forEach</span>(i => i.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, fn));
+
+<span class="cmt">// Use ONE listener on parent (good ✅)</span>
+document.<span class="fn">querySelector</span>(<span class="str">'ul'</span>)
+  .<span class="fn">addEventListener</span>(<span class="str">'click'</span>, e => {
+    <span class="kw">if</span>(e.<span class="prop">target</span>.<span class="fn">matches</span>(<span class="str">'li'</span>)) {
+      console.<span class="fn">log</span>(e.<span class="prop">target</span>.<span class="prop">textContent</span>);
+    }
+    <span class="kw">if</span>(e.<span class="prop">target</span>.<span class="fn">matches</span>(<span class="str">'.delete-btn'</span>)) {
+      e.<span class="prop">target</span>.<span class="fn">closest</span>(<span class="str">'li'</span>).<span class="fn">remove</span>();
+    }
+  });</pre>
+                <div class="good">✅ Delegation works for dynamically added elements too!</div>
+              </div>
+            </div>
+
+            <div class="topic-label">Common Event Types</div>
+            <div class="grid-3">
+              <div class="card">
+                <div class="card-title">Mouse Events</div>
+                <div class="method-list">
+                  <div class="method-row"><span class="method-name">click</span><span class="method-desc">Single
+                      click</span></div>
+                  <div class="method-row"><span class="method-name">dblclick</span><span class="method-desc">Double
+                      click</span></div>
+                  <div class="method-row"><span class="method-name">mousedown</span><span class="method-desc">Button
+                      pressed</span></div>
+                  <div class="method-row"><span class="method-name">mouseup</span><span class="method-desc">Button
+                      released</span></div>
+                  <div class="method-row"><span class="method-name">mousemove</span><span class="method-desc">Moving
+                      over element</span></div>
+                  <div class="method-row"><span class="method-name">mouseenter</span><span class="method-desc">Enter (no
+                      bubble)</span></div>
+                  <div class="method-row"><span class="method-name">mouseleave</span><span class="method-desc">Leave (no
+                      bubble)</span></div>
+                  <div class="method-row"><span class="method-name">mouseover</span><span class="method-desc">Enter
+                      (bubbles)</span></div>
+                  <div class="method-row"><span class="method-name">contextmenu</span><span class="method-desc">Right
+                      click</span></div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-purple">Keyboard Events</div>
+                <div class="method-list">
+                  <div class="method-row"><span class="method-name">keydown</span><span class="method-desc">Key pressed
+                      (fires repeatedly)</span></div>
+                  <div class="method-row"><span class="method-name">keyup</span><span class="method-desc">Key
+                      released</span></div>
+                  <div class="method-row"><span class="method-name">keypress</span><span class="method-desc">⚠️
+                      Deprecated</span></div>
+                </div>
+                <pre style="margin-top:.75rem"><span class="fn">addEventListener</span>(<span class="str">'keydown'</span>, e => {
+  e.<span class="prop">key</span>      <span class="cmt">// "Enter","a","ArrowUp"</span>
+  e.<span class="prop">code</span>     <span class="cmt">// "KeyA", "Space"</span>
+  e.<span class="prop">ctrlKey</span>  <span class="cmt">// true if Ctrl held</span>
+  e.<span class="prop">shiftKey</span> <span class="cmt">// true if Shift held</span>
+  e.<span class="prop">altKey</span>   <span class="cmt">// true if Alt held</span>
+  e.<span class="prop">metaKey</span>  <span class="cmt">// true if Cmd (Mac)</span>
+});</pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-green">Form & Focus Events</div>
+                <div class="method-list">
+                  <div class="method-row"><span class="method-name">submit</span><span class="method-desc">Form
+                      submitted</span></div>
+                  <div class="method-row"><span class="method-name">change</span><span class="method-desc">Value changed
+                      + blurred</span></div>
+                  <div class="method-row"><span class="method-name">input</span><span class="method-desc">Any value
+                      change (live)</span></div>
+                  <div class="method-row"><span class="method-name">focus</span><span class="method-desc">Element
+                      focused</span></div>
+                  <div class="method-row"><span class="method-name">blur</span><span class="method-desc">Element lost
+                      focus</span></div>
+                  <div class="method-row"><span class="method-name">focusin</span><span class="method-desc">Focus
+                      (bubbles)</span></div>
+                  <div class="method-row"><span class="method-name">focusout</span><span class="method-desc">Blur
+                      (bubbles)</span></div>
+                  <div class="method-row"><span class="method-name">reset</span><span class="method-desc">Form
+                      reset</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="topic-label">Custom Events</div>
+            <div class="card">
+              <div class="card-title card-title-pink">Dispatch Custom Events</div>
+              <pre><span class="cmt">// Create custom event</span>
+<span class="kw">const</span> evt = <span class="kw">new</span> <span class="fn">CustomEvent</span>(<span class="str">'userLoggedIn'</span>, {
+  detail: { userId: <span class="num">42</span>, role: <span class="str">'admin'</span> },
+  bubbles: <span class="bool">true</span>,
+  cancelable: <span class="bool">true</span>
+});
+
+<span class="cmt">// Dispatch (fire) the event</span>
+document.<span class="fn">dispatchEvent</span>(evt);
+el.<span class="fn">dispatchEvent</span>(evt);
+
+<span class="cmt">// Listen for it</span>
+document.<span class="fn">addEventListener</span>(<span class="str">'userLoggedIn'</span>, e => {
+  console.<span class="fn">log</span>(e.<span class="prop">detail</span>.<span class="prop">userId</span>); <span class="cmt">// 42</span>
+});
+
+<span class="cmt">// Simple custom event</span>
+el.<span class="fn">dispatchEvent</span>(<span class="kw">new</span> <span class="fn">Event</span>(<span class="str">'myEvent'</span>, { bubbles: <span class="bool">true</span> }));</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- SECTION: FORMS -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div class="section" id="forms">
+          <div class="content-inner">
+            <div class="sec-header">
+              <div class="sec-icon" style="background:rgba(255,190,11,.12)">📝</div>
+              <div>
+                <div class="sec-title">Forms & Input</div>
+                <div class="sec-sub">Handling forms, validation, and FormData</div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title">Form Submission</div>
+                <pre><span class="kw">const</span> form = document.<span class="fn">querySelector</span>(<span class="str">'form'</span>);
+
+form.<span class="fn">addEventListener</span>(<span class="str">'submit'</span>, e => {
+  e.<span class="fn">preventDefault</span>();  <span class="cmt">// stop page reload</span>
+
+  <span class="cmt">// Access form elements by name</span>
+  form.<span class="prop">email</span>.<span class="prop">value</span>
+  form.<span class="prop">password</span>.<span class="prop">value</span>
+  form.<span class="prop">elements</span>.<span class="prop">username</span>.<span class="prop">value</span>
+
+  <span class="cmt">// FormData API</span>
+  <span class="kw">const</span> fd = <span class="kw">new</span> <span class="fn">FormData</span>(form);
+  fd.<span class="fn">get</span>(<span class="str">'email'</span>)     <span class="cmt">// single value</span>
+  fd.<span class="fn">getAll</span>(<span class="str">'tags'</span>)   <span class="cmt">// array (checkboxes)</span>
+  <span class="fn">Object</span>.<span class="fn">fromEntries</span>(fd) <span class="cmt">// → plain object</span>
+});</pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-purple">Input Types & Values</div>
+                <pre><span class="cmt">// Text input</span>
+input.<span class="prop">value</span>          <span class="cmt">// current string</span>
+
+<span class="cmt">// Checkbox / radio</span>
+input.<span class="prop">checked</span>        <span class="cmt">// true/false</span>
+input.<span class="prop">value</span>          <span class="cmt">// the value attr</span>
+
+<span class="cmt">// Select</span>
+select.<span class="prop">value</span>              <span class="cmt">// selected value</span>
+select.<span class="prop">selectedIndex</span>     <span class="cmt">// index (0-based)</span>
+select.<span class="prop">options</span>[<span class="num">0</span>]         <span class="cmt">// option element</span>
+select.<span class="prop">selectedOptions</span>   <span class="cmt">// HTMLCollection</span>
+
+<span class="cmt">// Number input</span>
+Number(input.<span class="prop">value</span>)  <span class="cmt">// convert string→num</span>
+input.<span class="prop">valueAsNumber</span>  <span class="cmt">// direct number</span></pre>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title card-title-green">Validation API</div>
+                <pre><span class="kw">const</span> input = document.<span class="fn">querySelector</span>(<span class="str">'input'</span>);
+
+<span class="cmt">// Check validity</span>
+input.<span class="fn">checkValidity</span>()     <span class="cmt">// true/false</span>
+input.<span class="prop">validity</span>.<span class="prop">valid</span>      <span class="cmt">// true/false</span>
+input.<span class="prop">validity</span>.<span class="prop">valueMissing</span>  <span class="cmt">// required empty</span>
+input.<span class="prop">validity</span>.<span class="prop">typeMismatch</span>  <span class="cmt">// wrong type</span>
+input.<span class="prop">validity</span>.<span class="prop">tooShort</span>     <span class="cmt">// minlength</span>
+input.<span class="prop">validity</span>.<span class="prop">tooLong</span>      <span class="cmt">// maxlength</span>
+input.<span class="prop">validity</span>.<span class="prop">patternMismatch</span> <span class="cmt">// pattern</span>
+
+<span class="cmt">// Custom validation message</span>
+input.<span class="fn">setCustomValidity</span>(<span class="str">'Email already exists'</span>);
+input.<span class="fn">setCustomValidity</span>(<span class="str">''</span>); <span class="cmt">// clear</span>
+input.<span class="fn">reportValidity</span>();    <span class="cmt">// show tooltip</span></pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-yellow">Focus Management</div>
+                <pre><span class="cmt">// Focus / blur methods</span>
+input.<span class="fn">focus</span>();    <span class="cmt">// give focus</span>
+input.<span class="fn">blur</span>();     <span class="cmt">// remove focus</span>
+input.<span class="fn">select</span>();   <span class="cmt">// select all text</span>
+
+<span class="cmt">// document.activeElement</span>
+document.<span class="prop">activeElement</span>  <span class="cmt">// currently focused el</span>
+document.<span class="prop">hasFocus</span>()     <span class="cmt">// page has focus?</span>
+
+<span class="cmt">// tabIndex — make any el focusable</span>
+el.<span class="prop">tabIndex</span> = <span class="num">0</span>;   <span class="cmt">// in tab order</span>
+el.<span class="prop">tabIndex</span> = <span class="num">-1</span>;  <span class="cmt">// focusable, skip tab</span>
+
+<span class="cmt">// Trap focus (modal pattern)</span>
+modal.<span class="fn">addEventListener</span>(<span class="str">'keydown'</span>, e => {
+  <span class="kw">if</span>(e.<span class="prop">key</span> === <span class="str">'Tab'</span>) { <span class="cmt">/* cycle focus */</span> }
+});</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- SECTION: DIMENSIONS & SCROLL -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div class="section" id="dimensions">
+          <div class="content-inner">
+            <div class="sec-header">
+              <div class="sec-icon" style="background:rgba(0,212,255,.12)">📐</div>
+              <div>
+                <div class="sec-title">Dimensions & Scroll</div>
+                <div class="sec-sub">Layout geometry, scroll control, viewport info</div>
+              </div>
+            </div>
+
+            <div class="topic-label">Element Dimensions</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title">offsetWidth / clientWidth / scrollWidth</div>
+                <pre><span class="cmt">// offsetWidth  = content + padding + border</span>
+<span class="cmt">// clientWidth  = content + padding (no border)</span>
+<span class="cmt">// scrollWidth  = full scrollable width</span>
+
+el.<span class="prop">offsetWidth</span>    <span class="cmt">// includes border</span>
+el.<span class="prop">offsetHeight</span>   <span class="cmt">// includes border</span>
+
+el.<span class="prop">clientWidth</span>    <span class="cmt">// excludes border+scrollbar</span>
+el.<span class="prop">clientHeight</span>   <span class="cmt">// excludes border+scrollbar</span>
+
+el.<span class="prop">scrollWidth</span>    <span class="cmt">// full content width</span>
+el.<span class="prop">scrollHeight</span>   <span class="cmt">// full content height</span>
+
+el.<span class="prop">offsetTop</span>      <span class="cmt">// distance from offsetParent</span>
+el.<span class="prop">offsetLeft</span>     <span class="cmt">// distance from offsetParent</span></pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-purple">getBoundingClientRect ⭐</div>
+                <pre><span class="cmt">// Most accurate — viewport-relative coords</span>
+<span class="kw">const</span> rect = el.<span class="fn">getBoundingClientRect</span>();
+
+rect.<span class="prop">top</span>     <span class="cmt">// distance from viewport top</span>
+rect.<span class="prop">left</span>    <span class="cmt">// distance from viewport left</span>
+rect.<span class="prop">right</span>   <span class="cmt">// right edge from viewport left</span>
+rect.<span class="prop">bottom</span>  <span class="cmt">// bottom edge from viewport top</span>
+rect.<span class="prop">width</span>   <span class="cmt">// element width</span>
+rect.<span class="prop">height</span>  <span class="cmt">// element height</span>
+rect.<span class="prop">x</span>       <span class="cmt">// same as left</span>
+rect.<span class="prop">y</span>       <span class="cmt">// same as top</span>
+
+<span class="cmt">// Is element visible in viewport?</span>
+<span class="kw">const</span> inView = rect.<span class="prop">top</span> >= <span class="num">0</span> && rect.<span class="prop">bottom</span> <= innerHeight;</pre>
+              </div>
+            </div>
+
+            <div class="topic-label">Scroll</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title card-title-green">Scroll Position & Control</div>
+                <pre><span class="cmt">// Read scroll position</span>
+window.<span class="prop">scrollY</span>       <span class="cmt">// px scrolled vertically</span>
+window.<span class="prop">scrollX</span>       <span class="cmt">// px scrolled horizontally</span>
+el.<span class="prop">scrollTop</span>        <span class="cmt">// element scroll pos</span>
+el.<span class="prop">scrollLeft</span>       <span class="cmt">// element scroll pos</span>
+
+<span class="cmt">// Scroll window</span>
+window.<span class="fn">scrollTo</span>(<span class="num">0</span>, <span class="num">500</span>);         <span class="cmt">// to position</span>
+window.<span class="fn">scrollBy</span>(<span class="num">0</span>, <span class="num">100</span>);         <span class="cmt">// by amount</span>
+window.<span class="fn">scrollTo</span>({ top: <span class="num">500</span>, behavior: <span class="str">'smooth'</span> });
+
+<span class="cmt">// Scroll element into view</span>
+el.<span class="fn">scrollIntoView</span>();
+el.<span class="fn">scrollIntoView</span>({ behavior: <span class="str">'smooth'</span>, block: <span class="str">'center'</span> });
+el.<span class="fn">scrollIntoView</span>({ block: <span class="str">'nearest'</span> }); <span class="cmt">// minimal scroll</span></pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-yellow">Viewport & Window</div>
+                <pre><span class="cmt">// Viewport dimensions</span>
+window.<span class="prop">innerWidth</span>    <span class="cmt">// viewport width (with scrollbar)</span>
+window.<span class="prop">innerHeight</span>   <span class="cmt">// viewport height</span>
+
+document.<span class="prop">documentElement</span>.<span class="prop">clientWidth</span>  <span class="cmt">// no scrollbar</span>
+
+<span class="cmt">// Screen dimensions</span>
+screen.<span class="prop">width</span>         <span class="cmt">// total screen width</span>
+screen.<span class="prop">height</span>        <span class="cmt">// total screen height</span>
+
+<span class="cmt">// Scroll event listener</span>
+window.<span class="fn">addEventListener</span>(<span class="str">'scroll'</span>, () => {
+  <span class="kw">const</span> pct = (scrollY / (doc.scrollHeight - innerHeight)) * <span class="num">100</span>;
+  progress.<span class="prop">style</span>.<span class="prop">width</span> = pct + <span class="str">'%'</span>;
+}, { passive: <span class="bool">true</span> }); <span class="cmt">// passive for perf!</span></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- SECTION: ADVANCED DOM -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div class="section" id="advanced">
+          <div class="content-inner">
+            <div class="sec-header">
+              <div class="sec-icon" style="background:rgba(255,107,157,.12)">🚀</div>
+              <div>
+                <div class="sec-title">Advanced DOM</div>
+                <div class="sec-sub">MutationObserver, IntersectionObserver, Templates, Storage</div>
+              </div>
+            </div>
+
+            <div class="topic-label">MutationObserver</div>
+            <div class="card">
+              <div class="card-title">Watch DOM Changes</div>
+              <pre><span class="kw">const</span> observer = <span class="kw">new</span> <span class="fn">MutationObserver</span>(mutations => {
+  mutations.<span class="fn">forEach</span>(m => {
+    console.<span class="fn">log</span>(m.<span class="prop">type</span>);          <span class="cmt">// "childList","attributes","characterData"</span>
+    console.<span class="fn">log</span>(m.<span class="prop">addedNodes</span>);    <span class="cmt">// NodeList of added</span>
+    console.<span class="fn">log</span>(m.<span class="prop">removedNodes</span>);  <span class="cmt">// NodeList of removed</span>
+    console.<span class="fn">log</span>(m.<span class="prop">attributeName</span>); <span class="cmt">// changed attr name</span>
+    console.<span class="fn">log</span>(m.<span class="prop">oldValue</span>);      <span class="cmt">// previous value</span>
+  });
+});
+
+observer.<span class="fn">observe</span>(el, {
+  childList:     <span class="bool">true</span>,  <span class="cmt">// watch add/remove of children</span>
+  attributes:    <span class="bool">true</span>,  <span class="cmt">// watch attribute changes</span>
+  subtree:       <span class="bool">true</span>,  <span class="cmt">// watch all descendants</span>
+  characterData: <span class="bool">true</span>,  <span class="cmt">// watch text content changes</span>
+  attributeOldValue: <span class="bool">true</span>,   <span class="cmt">// get old attr value</span>
+});
+
+observer.<span class="fn">disconnect</span>(); <span class="cmt">// stop watching</span></pre>
+            </div>
+
+            <div class="topic-label">IntersectionObserver</div>
+            <div class="card">
+              <div class="card-title card-title-purple">Visibility / Lazy Loading</div>
+              <pre><span class="cmt">// Detect when elements enter/leave viewport</span>
+<span class="kw">const</span> io = <span class="kw">new</span> <span class="fn">IntersectionObserver</span>((entries) => {
+  entries.<span class="fn">forEach</span>(entry => {
+    entry.<span class="prop">isIntersecting</span>   <span class="cmt">// true = visible</span>
+    entry.<span class="prop">intersectionRatio</span> <span class="cmt">// 0 to 1</span>
+    entry.<span class="prop">target</span>           <span class="cmt">// observed element</span>
+
+    <span class="kw">if</span>(entry.<span class="prop">isIntersecting</span>) {
+      entry.<span class="prop">target</span>.<span class="prop">classList</span>.<span class="fn">add</span>(<span class="str">'visible'</span>); <span class="cmt">// animate in</span>
+      io.<span class="fn">unobserve</span>(entry.<span class="prop">target</span>);             <span class="cmt">// stop watching</span>
+    }
+  });
+}, {
+  threshold: <span class="num">0.2</span>,    <span class="cmt">// 20% visible to trigger</span>
+  rootMargin: <span class="str">'0px 0px -50px 0px'</span>  <span class="cmt">// shrink viewport</span>
+});
+
+document.<span class="fn">querySelectorAll</span>(<span class="str">'.animate-on-scroll'</span>)
+         .<span class="fn">forEach</span>(el => io.<span class="fn">observe</span>(el));
+
+<span class="cmt">// Lazy load images</span>
+<span class="kw">const</span> lazyIO = <span class="kw">new</span> <span class="fn">IntersectionObserver</span>(entries => {
+  entries.<span class="fn">forEach</span>(e => {
+    <span class="kw">if</span>(e.<span class="prop">isIntersecting</span>) {
+      e.<span class="prop">target</span>.<span class="prop">src</span> = e.<span class="prop">target</span>.<span class="prop">dataset</span>.<span class="prop">src</span>;
+      lazyIO.<span class="fn">unobserve</span>(e.<span class="prop">target</span>);
+    }
+  });
+});
+document.<span class="fn">querySelectorAll</span>(<span class="str">'img[data-src]'</span>).<span class="fn">forEach</span>(img => lazyIO.<span class="fn">observe</span>(img));</pre>
+            </div>
+
+            <div class="topic-label">HTML Template Element</div>
+            <div class="card">
+              <div class="card-title card-title-green">Reusable Templates</div>
+              <pre><span class="cmt">// HTML (content is INERT — not rendered)</span>
+<span class="tag">&lt;template</span> <span class="attr">id</span>=<span class="str">"card-template"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"card"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;h2</span> <span class="attr">class</span>=<span class="str">"card-title"</span><span class="tag">&gt;&lt;/h2&gt;</span>
+    <span class="tag">&lt;p</span> <span class="attr">class</span>=<span class="str">"card-body"</span><span class="tag">&gt;&lt;/p&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/template&gt;</span>
+
+<span class="cmt">// JS — clone and use</span>
+<span class="kw">const</span> tpl = document.<span class="fn">getElementById</span>(<span class="str">'card-template'</span>);
+<span class="kw">const</span> clone = tpl.<span class="prop">content</span>.<span class="fn">cloneNode</span>(<span class="bool">true</span>); <span class="cmt">// deep clone</span>
+clone.<span class="fn">querySelector</span>(<span class="str">'.card-title'</span>).<span class="prop">textContent</span> = <span class="str">'My Card'</span>;
+clone.<span class="fn">querySelector</span>(<span class="str">'.card-body'</span>).<span class="prop">textContent</span> = <span class="str">'Body text'</span>;
+document.<span class="prop">body</span>.<span class="fn">append</span>(clone);</pre>
+            </div>
+
+            <div class="topic-label">localStorage & sessionStorage</div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-title card-title-yellow">Storage API</div>
+                <pre><span class="cmt">// localStorage — persists across sessions</span>
+localStorage.<span class="fn">setItem</span>(<span class="str">'key'</span>, <span class="str">'value'</span>);
+localStorage.<span class="fn">getItem</span>(<span class="str">'key'</span>);        <span class="cmt">// "value" or null</span>
+localStorage.<span class="fn">removeItem</span>(<span class="str">'key'</span>);
+localStorage.<span class="fn">clear</span>();               <span class="cmt">// delete all</span>
+localStorage.<span class="prop">length</span>;               <span class="cmt">// count of keys</span>
+
+<span class="cmt">// Store objects (must stringify)</span>
+localStorage.<span class="fn">setItem</span>(<span class="str">'user'</span>, <span class="fn">JSON</span>.<span class="fn">stringify</span>({name:<span class="str">'Lokesh'</span>}));
+<span class="fn">JSON</span>.<span class="fn">parse</span>(localStorage.<span class="fn">getItem</span>(<span class="str">'user'</span>));
+
+<span class="cmt">// sessionStorage — cleared on tab close</span>
+sessionStorage.<span class="fn">setItem</span>(<span class="str">'temp'</span>, <span class="str">'data'</span>);</pre>
+              </div>
+              <div class="card">
+                <div class="card-title card-title-pink">ResizeObserver</div>
+                <pre><span class="cmt">// Watch element size changes</span>
+<span class="kw">const</span> ro = <span class="kw">new</span> <span class="fn">ResizeObserver</span>(entries => {
+  entries.<span class="fn">forEach</span>(entry => {
+    <span class="kw">const</span> { width, height } = entry.<span class="prop">contentRect</span>;
+    console.<span class="fn">log</span>(<span class="str">`Size: <span class="num">${</span>width<span class="num">}</span>x<span class="num">${</span>height<span class="num">}</span>`</span>);
+
+    <span class="kw">if</span>(width < <span class="num">400</span>) {
+      entry.<span class="prop">target</span>.<span class="prop">classList</span>.<span class="fn">add</span>(<span class="str">'compact'</span>);
+    }
+  });
+});
+ro.<span class="fn">observe</span>(el);
+ro.<span class="fn">unobserve</span>(el);
+ro.<span class="fn">disconnect</span>();</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- SECTION: INTERVIEW QUESTIONS -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div class="section" id="interview-dom">
+          <div class="content-inner">
+            <div class="sec-header">
+              <div class="sec-icon" style="background:rgba(0,212,255,.12)">🎯</div>
+              <div>
+                <div class="sec-title">DOM Interview Questions</div>
+                <div class="sec-sub">10 questions that actually get asked — with full answers</div>
+              </div>
+            </div>
+
+            <!-- Q1 -->
+            <div class="q-block">
+              <div class="q-header" onclick="toggleQ(this)">
+                <div class="q-num">Q1</div>
+                <div class="q-content">
+                  <div class="q-text">What is the difference between <code>innerHTML</code>, <code>textContent</code>,
+                    and <code>innerText</code>? When would you use each?</div>
+                  <div class="q-tag-wrap"><span class="q-tag qtag-easy">Easy</span><span
+                      class="q-tag qtag-topic">Content</span></div>
+                </div>
+                <div class="q-arrow">▼</div>
+              </div>
+              <div class="q-body">
+                <div class="q-answer">
+                  <strong style="color:var(--accent)">innerHTML</strong> — Parses and renders HTML markup. Can set/get
+                  HTML including tags. <em>Security risk</em>: never use with user input (XSS). Use for injecting
+                  trusted HTML templates.<br><br>
+                  <strong style="color:var(--accent4)">textContent</strong> — Gets/sets raw text only, ignores HTML
+                  tags. Includes hidden elements. Fastest option and XSS-safe. Use for setting user-generated
+                  content.<br><br>
+                  <strong style="color:var(--accent5)">innerText</strong> — Like textContent but CSS-aware: respects
+                  <code>display:none</code> and <code>visibility:hidden</code>. Triggers layout recalculation (slower).
+                  Use when you need what the user visually sees.
+                </div>
+                <pre><span class="cmt">// Rule of thumb:</span>
+el.<span class="prop">innerHTML</span> = trustedHTML;     <span class="cmt">// ✅ for HTML structure</span>
+el.<span class="prop">textContent</span> = userInput;    <span class="cmt">// ✅ always safe for user data</span>
+el.<span class="prop">innerText</span>;                  <span class="cmt">// ✅ when CSS-aware read is needed</span></pre>
+              </div>
+            </div>
+
+            <!-- Q2 -->
+            <div class="q-block">
+              <div class="q-header" onclick="toggleQ(this)">
+                <div class="q-num">Q2</div>
+                <div class="q-content">
+                  <div class="q-text">Explain Event Bubbling, Capturing, and how <code>stopPropagation()</code> differs
+                    from <code>stopImmediatePropagation()</code>.</div>
+                  <div class="q-tag-wrap"><span class="q-tag qtag-med">Medium</span><span
+                      class="q-tag qtag-topic">Events</span></div>
+                </div>
+                <div class="q-arrow">▼</div>
+              </div>
+              <div class="q-body">
+                <div class="q-answer">
+                  Events travel in 3 phases:<br>
+                  <strong>1. Capture</strong>: window → document → body → target (top-down)<br>
+                  <strong>2. Target</strong>: event fires on the actual element<br>
+                  <strong>3. Bubble</strong>: target → body → document → window (bottom-up)<br><br>
+                  <code>stopPropagation()</code> — stops the event from traveling further in the current direction, but
+                  other listeners on the same element still fire.<br>
+                  <code>stopImmediatePropagation()</code> — stops propagation AND prevents any other handlers on the
+                  same element from running.
+                </div>
+                <pre><span class="cmt">// Multiple listeners on same button</span>
+btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, e => {
+  e.<span class="fn">stopImmediatePropagation</span>();
+  console.<span class="fn">log</span>(<span class="str">'1st — runs'</span>);
+});
+btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, () => console.<span class="fn">log</span>(<span class="str">'2nd — NEVER runs'</span>));</pre>
+              </div>
+            </div>
+
+            <!-- Q3 -->
+            <div class="q-block">
+              <div class="q-header" onclick="toggleQ(this)">
+                <div class="q-num">Q3</div>
+                <div class="q-content">
+                  <div class="q-text">What is Event Delegation? Why is it better than attaching listeners to each
+                    element? Write an example.</div>
+                  <div class="q-tag-wrap"><span class="q-tag qtag-med">Medium</span><span
+                      class="q-tag qtag-topic">Events</span><span class="q-tag qtag-topic">Performance</span></div>
+                </div>
+                <div class="q-arrow">▼</div>
+              </div>
+              <div class="q-body">
+                <div class="q-answer">
+                  Event delegation is attaching a <em>single</em> listener to a parent and using <code>e.target</code>
+                  to determine which child triggered it. Benefits: uses one listener instead of many (memory efficient),
+                  works for dynamically added elements, simpler cleanup.
+                </div>
+                <pre><span class="cmt">// ❌ Bad: 1000 listeners for 1000 list items</span>
+document.<span class="fn">querySelectorAll</span>(<span class="str">'li'</span>).<span class="fn">forEach</span>(li =>
+  li.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, handleClick)
+);
+
+<span class="cmt">// ✅ Good: ONE listener handles all</span>
+document.<span class="fn">querySelector</span>(<span class="str">'ul'</span>).<span class="fn">addEventListener</span>(<span class="str">'click'</span>, e => {
+  <span class="kw">const</span> li = e.<span class="prop">target</span>.<span class="fn">closest</span>(<span class="str">'li'</span>); <span class="cmt">// handle nested elements</span>
+  <span class="kw">if</span>(!li) <span class="kw">return</span>;
+  <span class="fn">handleClick</span>(li);
+});</pre>
+              </div>
+            </div>
+
+            <!-- Q4 -->
+            <div class="q-block">
+              <div class="q-header" onclick="toggleQ(this)">
+                <div class="q-num">Q4</div>
+                <div class="q-content">
+                  <div class="q-text">What is the difference between <code>e.target</code> and
+                    <code>e.currentTarget</code>?
+                  </div>
+                  <div class="q-tag-wrap"><span class="q-tag qtag-easy">Easy</span><span
+                      class="q-tag qtag-topic">Events</span></div>
+                </div>
+                <div class="q-arrow">▼</div>
+              </div>
+              <div class="q-body">
+                <div class="q-answer">
+                  <code>e.target</code> — the element that actually triggered the event (where the user
+                  clicked).<br><br>
+                  <code>e.currentTarget</code> — the element the event listener is attached to. During bubbling this is
+                  the ancestor.<br><br>
+                  Inside the handler, <code>this</code> equals <code>e.currentTarget</code> for regular functions (not
+                  arrow functions).
+                </div>
+                <pre><span class="cmt">// Click on &lt;span&gt; inside &lt;button&gt;</span>
+btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, e => {
+  e.<span class="prop">target</span>         <span class="cmt">// → &lt;span&gt; (where click landed)</span>
+  e.<span class="prop">currentTarget</span>  <span class="cmt">// → &lt;button&gt; (has the listener)</span>
+});</pre>
+              </div>
+            </div>
+
+            <!-- Q5 -->
+            <div class="q-block">
+              <div class="q-header" onclick="toggleQ(this)">
+                <div class="q-num">Q5</div>
+                <div class="q-content">
+                  <div class="q-text">What is the difference between <code>querySelector</code> returning a static
+                    NodeList vs <code>getElementsByClassName</code> returning a live HTMLCollection?</div>
+                  <div class="q-tag-wrap"><span class="q-tag qtag-med">Medium</span><span
+                      class="q-tag qtag-topic">Selectors</span></div>
+                </div>
+                <div class="q-arrow">▼</div>
+              </div>
+              <div class="q-body">
+                <div class="q-answer">
+                  A <strong>live</strong> collection (HTMLCollection from getElementsBy*) automatically updates when the
+                  DOM changes. A <strong>static</strong> NodeList (from querySelectorAll) is a snapshot taken at query
+                  time and never updates.
+                </div>
+                <pre><span class="kw">const</span> live = document.<span class="fn">getElementsByClassName</span>(<span class="str">'item'</span>); <span class="cmt">// live</span>
+<span class="kw">const</span> snap = document.<span class="fn">querySelectorAll</span>(<span class="str">'.item'</span>);      <span class="cmt">// static</span>
+
+console.<span class="fn">log</span>(live.<span class="prop">length</span>); <span class="cmt">// 2</span>
+console.<span class="fn">log</span>(snap.<span class="prop">length</span>); <span class="cmt">// 2</span>
+
+document.<span class="prop">body</span>.<span class="fn">insertAdjacentHTML</span>(<span class="str">'beforeend'</span>, <span class="str">'&lt;div class="item"&gt;&lt;/div&gt;'</span>);
+
+console.<span class="fn">log</span>(live.<span class="prop">length</span>); <span class="cmt">// 3 ← auto updated</span>
+console.<span class="fn">log</span>(snap.<span class="prop">length</span>); <span class="cmt">// 2 ← still 2</span></pre>
+              </div>
+            </div>
+
+            <!-- Q6 -->
+            <div class="q-block">
+              <div class="q-header" onclick="toggleQ(this)">
+                <div class="q-num">Q6</div>
+                <div class="q-content">
+                  <div class="q-text">Explain the difference between HTML attributes and DOM properties. Give a concrete
+                    example.</div>
+                  <div class="q-tag-wrap"><span class="q-tag qtag-med">Medium</span><span
+                      class="q-tag qtag-topic">Attributes</span></div>
+                </div>
+                <div class="q-arrow">▼</div>
+              </div>
+              <div class="q-body">
+                <div class="q-answer">
+                  <strong>Attributes</strong> are what's in the HTML source — always strings, represent the initial
+                  value.<br>
+                  <strong>Properties</strong> are live JS object properties — can be any type, represent the current
+                  value.<br><br>
+                  They start in sync but diverge once the user or JS changes the value.
+                </div>
+                <pre><span class="cmt">// HTML: &lt;input type="text" value="initial"&gt;</span>
+<span class="cmt">// User types "hello"</span>
+input.<span class="fn">getAttribute</span>(<span class="str">'value'</span>)  <span class="cmt">// "initial" — never changes</span>
+input.<span class="prop">value</span>                  <span class="cmt">// "hello" — current live value</span>
+
+<span class="cmt">// Checkbox: attribute vs property</span>
+<span class="cmt">// HTML: &lt;input type="checkbox" checked&gt;</span>
+input.<span class="fn">getAttribute</span>(<span class="str">'checked'</span>)  <span class="cmt">// "" (empty string — presence)</span>
+input.<span class="prop">checked</span>                  <span class="cmt">// true (boolean property)</span>
+input.<span class="fn">removeAttribute</span>(<span class="str">'checked'</span>);    <span class="cmt">// removes from HTML</span>
+input.<span class="prop">checked</span> = <span class="bool">false</span>;          <span class="cmt">// changes live state ✅</span></pre>
+              </div>
+            </div>
+
+            <!-- Q7 -->
+            <div class="q-block">
+              <div class="q-header" onclick="toggleQ(this)">
+                <div class="q-num">Q7</div>
+                <div class="q-content">
+                  <div class="q-text">Why is DocumentFragment better for inserting multiple elements? How does it
+                    improve performance?</div>
+                  <div class="q-tag-wrap"><span class="q-tag qtag-med">Medium</span><span
+                      class="q-tag qtag-topic">Performance</span></div>
+                </div>
+                <div class="q-arrow">▼</div>
+              </div>
+              <div class="q-body">
+                <div class="q-answer">
+                  Every DOM insertion causes a <em>reflow/repaint</em> — the browser recalculates layout. Inserting 100
+                  elements individually causes 100 reflows. A DocumentFragment exists in memory (off-screen), so you can
+                  add all elements to it without any reflow. When you append the fragment to the DOM, it causes exactly
+                  <em>one</em> reflow.
+                </div>
+                <pre><span class="cmt">// DocumentFragment — batch 1000 items in ONE reflow</span>
+<span class="kw">const</span> frag = document.<span class="fn">createDocumentFragment</span>();
+<span class="kw">for</span>(<span class="kw">let</span> i = <span class="num">0</span>; i < <span class="num">1000</span>; i++) {
+  <span class="kw">const</span> li = document.<span class="fn">createElement</span>(<span class="str">'li'</span>);
+  li.<span class="prop">textContent</span> = <span class="str">`Item <span class="num">${</span>i<span class="num">}</span>`</span>;
+  frag.<span class="fn">append</span>(li);    <span class="cmt">// ← no DOM reflow</span>
+}
+document.<span class="fn">querySelector</span>(<span class="str">'ul'</span>).<span class="fn">append</span>(frag); <span class="cmt">// ← ONE reflow</span></pre>
+              </div>
+            </div>
+
+            <!-- Q8 -->
+            <div class="q-block">
+              <div class="q-header" onclick="toggleQ(this)">
+                <div class="q-num">Q8</div>
+                <div class="q-content">
+                  <div class="q-text">What is MutationObserver and when would you use it instead of event listeners?
+                  </div>
+                  <div class="q-tag-wrap"><span class="q-tag qtag-hard">Hard</span><span
+                      class="q-tag qtag-topic">Advanced</span></div>
+                </div>
+                <div class="q-arrow">▼</div>
+              </div>
+              <div class="q-body">
+                <div class="q-answer">
+                  <code>MutationObserver</code> watches for DOM changes (added/removed nodes, attribute changes, text
+                  changes) that you didn't cause — e.g., changes made by third-party scripts, frameworks, or dynamic
+                  content loaders. Use it when events won't tell you about DOM changes, like when a chat SDK injects a
+                  widget, when you need to react to a library modifying the DOM, or implementing undo/redo history.
+                </div>
+                <pre><span class="cmt">// Watch a container for injected content</span>
+<span class="kw">const</span> obs = <span class="kw">new</span> <span class="fn">MutationObserver</span>(muts => {
+  muts.<span class="fn">forEach</span>(m => {
+    m.<span class="prop">addedNodes</span>.<span class="fn">forEach</span>(node => {
+      <span class="kw">if</span>(node.<span class="prop">nodeType</span> === <span class="num">1</span>) {  <span class="cmt">// ELEMENT_NODE</span>
+        console.<span class="fn">log</span>(<span class="str">'New element added:'</span>, node);
+      }
+    });
+  });
+});
+obs.<span class="fn">observe</span>(document.<span class="prop">body</span>, { childList: <span class="bool">true</span>, subtree: <span class="bool">true</span> });</pre>
+              </div>
+            </div>
+
+            <!-- Q9 -->
+            <div class="q-block">
+              <div class="q-header" onclick="toggleQ(this)">
+                <div class="q-num">Q9</div>
+                <div class="q-content">
+                  <div class="q-text">How does <code>getBoundingClientRect()</code> work? How do you check if an element
+                    is visible in the viewport without IntersectionObserver?</div>
+                  <div class="q-tag-wrap"><span class="q-tag qtag-hard">Hard</span><span
+                      class="q-tag qtag-topic">Layout</span></div>
+                </div>
+                <div class="q-arrow">▼</div>
+              </div>
+              <div class="q-body">
+                <div class="q-answer">
+                  <code>getBoundingClientRect()</code> returns a DOMRect with the element's size and position relative
+                  to the current viewport. Positions are not affected by scrolling (it's viewport-relative). It causes a
+                  synchronous layout/reflow when called, so avoid it in tight loops.
+                </div>
+                <pre><span class="kw">function</span> <span class="fn">isInViewport</span>(el) {
+  <span class="kw">const</span> rect = el.<span class="fn">getBoundingClientRect</span>();
+  <span class="kw">return</span>(
+    rect.<span class="prop">top</span>    >= <span class="num">0</span> &&
+    rect.<span class="prop">left</span>   >= <span class="num">0</span> &&
+    rect.<span class="prop">bottom</span> <= (window.<span class="prop">innerHeight</span>) &&
+    rect.<span class="prop">right</span>  <= (window.<span class="prop">innerWidth</span>)
+  );
+}
+<span class="cmt">// More efficient alternative: use IntersectionObserver!</span></pre>
+              </div>
+            </div>
+
+            <!-- Q10 -->
+            <div class="q-block">
+              <div class="q-header" onclick="toggleQ(this)">
+                <div class="q-num">Q10</div>
+                <div class="q-content">
+                  <div class="q-text">How would you implement a basic pub/sub (event bus) using custom DOM events?</div>
+                  <div class="q-tag-wrap"><span class="q-tag qtag-hard">Hard</span><span
+                      class="q-tag qtag-topic">Patterns</span><span class="q-tag qtag-topic">Advanced</span></div>
+                </div>
+                <div class="q-arrow">▼</div>
+              </div>
+              <div class="q-body">
+                <div class="q-answer">
+                  The DOM's event system is itself a pub/sub. Using a shared EventTarget (like <code>document</code>) as
+                  an event bus lets loosely coupled modules communicate without direct references.
+                </div>
+                <pre><span class="cmt">// EventBus using document as shared target</span>
+<span class="kw">const</span> bus = {
+  <span class="fn">on</span>(event, cb) {
+    document.<span class="fn">addEventListener</span>(event, e => <span class="fn">cb</span>(e.<span class="prop">detail</span>));
+  },
+  <span class="fn">emit</span>(event, data) {
+    document.<span class="fn">dispatchEvent</span>(<span class="kw">new</span> <span class="fn">CustomEvent</span>(event, { detail: data }));
+  }
+};
+
+<span class="cmt">// Module A subscribes</span>
+bus.<span class="fn">on</span>(<span class="str">'cart:update'</span>, data => console.<span class="fn">log</span>(<span class="str">'Cart updated:'</span>, data));
+
+<span class="cmt">// Module B publishes</span>
+bus.<span class="fn">emit</span>(<span class="str">'cart:update'</span>, { items: <span class="num">3</span>, total: <span class="num">99.99</span> });</pre>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- SECTION: PRACTICE ARRAYS -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div class="section" id="practice-arrays">
+          <div class="content-inner">
+            <div class="sec-header">
+              <div class="sec-icon" style="background:rgba(0,255,136,.12)">💪</div>
+              <div>
+                <div class="sec-title">Arrays & Loops — Practice Problems</div>
+                <div class="sec-sub">10 problems that build real logic for Leetcode & projects</div>
+              </div>
+            </div>
+
+            <div class="practice-grid">
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent)"></div>
+                <div class="p-header">
+                  <div class="p-num">P1</div>
+                  <div class="p-content">
+                    <div class="p-title">Two Sum</div>
+                    <div class="p-desc">Given an array of numbers and a target, return the indices of the two numbers
+                      that add up to the target. Each input has exactly one solution. You may not use the same element
+                      twice.</div>
+                    <pre><span class="cmt">// Input: nums=[2,7,11,15], target=9</span>
+<span class="cmt">// Output: [0,1]  (nums[0]+nums[1]=9)</span>
+<span class="kw">function</span> <span class="fn">twoSum</span>(nums, target) {
+  <span class="kw">const</span> map = <span class="kw">new</span> <span class="fn">Map</span>();
+  <span class="kw">for</span>(<span class="kw">let</span> i = <span class="num">0</span>; i < nums.<span class="prop">length</span>; i++) {
+    <span class="kw">const</span> complement = target - nums[i];
+    <span class="kw">if</span>(map.<span class="fn">has</span>(complement)) <span class="kw">return</span> [map.<span class="fn">get</span>(complement), i];
+    map.<span class="fn">set</span>(nums[i], i);
+  }
+}</pre>
+                    <div class="p-tags">
+                      <span class="p-tag" style="background:rgba(0,212,255,.15);color:var(--accent)">Hash Map</span>
+                      <span class="p-tag" style="background:rgba(0,255,136,.15);color:var(--accent4)">Easy</span>
+                      <span class="p-tag" style="background:rgba(124,92,255,.15);color:var(--accent2)">Leetcode
+                        #1</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent2)"></div>
+                <div class="p-header">
+                  <div class="p-num">P2</div>
+                  <div class="p-content">
+                    <div class="p-title">Group By Category</div>
+                    <div class="p-desc">Given an array of product objects with a <code>category</code> property, group
+                      them into an object where each key is a category and value is an array of products. Real project
+                      use: e-commerce filter, sidebar nav grouping.</div>
+                    <pre><span class="kw">const</span> products = [
+  {name:<span class="str">'Apple'</span>,category:<span class="str">'fruit'</span>},
+  {name:<span class="str">'Banana'</span>,category:<span class="str">'fruit'</span>},
+  {name:<span class="str">'Carrot'</span>,category:<span class="str">'veggie'</span>}
+];
+
+<span class="kw">const</span> grouped = products.<span class="fn">reduce</span>((acc, p) => {
+  acc[p.<span class="prop">category</span>] ??= [];
+  acc[p.<span class="prop">category</span>].<span class="fn">push</span>(p);
+  <span class="kw">return</span> acc;
+}, {});
+<span class="cmt">// {fruit:[...], veggie:[...]}</span></pre>
+                    <div class="p-tags">
+                      <span class="p-tag" style="background:rgba(124,92,255,.15);color:var(--accent2)">reduce</span>
+                      <span class="p-tag" style="background:rgba(255,190,11,.15);color:var(--accent5)">Medium</span>
+                      <span class="p-tag" style="background:rgba(255,107,157,.15);color:var(--accent3)">Real
+                        Project</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent4)"></div>
+                <div class="p-header">
+                  <div class="p-num">P3</div>
+                  <div class="p-content">
+                    <div class="p-title">Flatten Nested Array</div>
+                    <div class="p-desc">Write a function that flattens an arbitrarily deeply nested array. Without using
+                      <code>Array.flat()</code>. Use recursion. Real use: tree menu data, nested comment threads.
+                    </div>
+                    <pre><span class="cmt">// Input: [1,[2,[3,[4]]],5]</span>
+<span class="cmt">// Output: [1,2,3,4,5]</span>
+<span class="kw">function</span> <span class="fn">flatten</span>(arr) {
+  <span class="kw">return</span> arr.<span class="fn">reduce</span>((acc, val) =>
+    Array.<span class="fn">isArray</span>(val)
+      ? acc.<span class="fn">concat</span>(<span class="fn">flatten</span>(val))
+      : acc.<span class="fn">concat</span>(val),
+  []);
+}
+<span class="cmt">// Or: arr.flat(Infinity)</span></pre>
+                    <div class="p-tags">
+                      <span class="p-tag" style="background:rgba(0,255,136,.15);color:var(--accent4)">Recursion</span>
+                      <span class="p-tag" style="background:rgba(255,190,11,.15);color:var(--accent5)">Medium</span>
+                      <span class="p-tag" style="background:rgba(0,212,255,.15);color:var(--accent)">Arrays</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent5)"></div>
+                <div class="p-header">
+                  <div class="p-num">P4</div>
+                  <div class="p-content">
+                    <div class="p-title">Chunk Array</div>
+                    <div class="p-desc">Given an array and a chunk size, split the array into sub-arrays of that size.
+                      Real use: pagination, rendering items in rows of N, batch API calls.</div>
+                    <pre><span class="cmt">// Input: [1,2,3,4,5], size=2</span>
+<span class="cmt">// Output: [[1,2],[3,4],[5]]</span>
+<span class="kw">function</span> <span class="fn">chunk</span>(arr, size) {
+  <span class="kw">const</span> result = [];
+  <span class="kw">for</span>(<span class="kw">let</span> i = <span class="num">0</span>; i < arr.<span class="prop">length</span>; i += size) {
+    result.<span class="fn">push</span>(arr.<span class="fn">slice</span>(i, i + size));
+  }
+  <span class="kw">return</span> result;
+}</pre>
+                    <div class="p-tags">
+                      <span class="p-tag" style="background:rgba(255,190,11,.15);color:var(--accent5)">slice</span>
+                      <span class="p-tag" style="background:rgba(0,255,136,.15);color:var(--accent4)">Easy</span>
+                      <span class="p-tag"
+                        style="background:rgba(255,107,157,.15);color:var(--accent3)">Pagination</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent3)"></div>
+                <div class="p-header">
+                  <div class="p-num">P5</div>
+                  <div class="p-content">
+                    <div class="p-title">Find Duplicates</div>
+                    <div class="p-desc">Find all duplicate values in an array without using a Set or filter. Return
+                      unique duplicate values. Real use: form validation (duplicate entries), data deduplication.</div>
+                    <pre><span class="cmt">// Input: [1,2,3,2,4,3,5]</span>
+<span class="cmt">// Output: [2,3]</span>
+<span class="kw">function</span> <span class="fn">findDuplicates</span>(arr) {
+  <span class="kw">const</span> seen = {};
+  <span class="kw">const</span> dups = [];
+  arr.<span class="fn">forEach</span>(n => {
+    <span class="kw">if</span>(seen[n] === <span class="num">1</span>) dups.<span class="fn">push</span>(n);
+    seen[n] = (seen[n] || <span class="num">0</span>) + <span class="num">1</span>;
+  });
+  <span class="kw">return</span> dups;
+}</pre>
+                    <div class="p-tags">
+                      <span class="p-tag" style="background:rgba(255,107,157,.15);color:var(--accent3)">Hash Map</span>
+                      <span class="p-tag" style="background:rgba(0,255,136,.15);color:var(--accent4)">Easy</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent)"></div>
+                <div class="p-header">
+                  <div class="p-num">P6</div>
+                  <div class="p-content">
+                    <div class="p-title">Maximum Subarray Sum (Kadane's)</div>
+                    <div class="p-desc">Find the contiguous subarray that has the largest sum. Must work with negative
+                      numbers. This pattern appears in profit maximization, signal processing problems on Leetcode.
+                    </div>
+                    <pre><span class="cmt">// Input: [-2,1,-3,4,-1,2,1,-5,4]</span>
+<span class="cmt">// Output: 6 (subarray [4,-1,2,1])</span>
+<span class="kw">function</span> <span class="fn">maxSubArray</span>(nums) {
+  <span class="kw">let</span> max = nums[<span class="num">0</span>], curr = nums[<span class="num">0</span>];
+  <span class="kw">for</span>(<span class="kw">let</span> i = <span class="num">1</span>; i < nums.<span class="prop">length</span>; i++) {
+    curr = Math.<span class="fn">max</span>(nums[i], curr + nums[i]);
+    max = Math.<span class="fn">max</span>(max, curr);
+  }
+  <span class="kw">return</span> max;
+}</pre>
+                    <div class="p-tags">
+                      <span class="p-tag" style="background:rgba(255,107,157,.15);color:var(--accent3)">Hard</span>
+                      <span class="p-tag" style="background:rgba(0,212,255,.15);color:var(--accent)">Dynamic
+                        Programming</span>
+                      <span class="p-tag" style="background:rgba(124,92,255,.15);color:var(--accent2)">Leetcode
+                        #53</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent2)"></div>
+                <div class="p-header">
+                  <div class="p-num">P7</div>
+                  <div class="p-content">
+                    <div class="p-title">Sort Users by Multiple Keys</div>
+                    <div class="p-desc">Sort an array of users first by age (ascending), then by name (alphabetically)
+                      for ties. Real use: leaderboards, contact lists, data tables with multi-column sort.</div>
+                    <pre><span class="kw">const</span> users = [
+  {name:<span class="str">'Zara'</span>,age:<span class="num">25</span>},{name:<span class="str">'Alice'</span>,age:<span class="num">25</span>},{name:<span class="str">'Bob'</span>,age:<span class="num">20</span>}
+];
+
+users.<span class="fn">sort</span>((a,b) =>
+  a.<span class="prop">age</span> - b.<span class="prop">age</span>               <span class="cmt">// primary: age</span>
+  || a.<span class="prop">name</span>.<span class="fn">localeCompare</span>(b.<span class="prop">name</span>) <span class="cmt">// secondary: name</span>
+);
+<span class="cmt">// Bob(20), Alice(25), Zara(25)</span></pre>
+                    <div class="p-tags">
+                      <span class="p-tag" style="background:rgba(124,92,255,.15);color:var(--accent2)">sort</span>
+                      <span class="p-tag" style="background:rgba(255,190,11,.15);color:var(--accent5)">Medium</span>
+                      <span class="p-tag" style="background:rgba(255,107,157,.15);color:var(--accent3)">Real
+                        Project</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent4)"></div>
+                <div class="p-header">
+                  <div class="p-num">P8</div>
+                  <div class="p-content">
+                    <div class="p-title">Deep Merge Objects</div>
+                    <div class="p-desc">Merge two objects deeply, so nested objects are merged not overwritten. Real
+                      use: merging config objects, Redux state updates, settings panels.</div>
+                    <pre><span class="kw">function</span> <span class="fn">deepMerge</span>(target, source) {
+  <span class="kw">const</span> result = { ...target };
+  <span class="kw">for</span>(<span class="kw">const</span> key <span class="kw">in</span> source) {
+    <span class="kw">if</span>(source[key] && <span class="kw">typeof</span> source[key] === <span class="str">'object'</span>
+    && !Array.<span class="fn">isArray</span>(source[key])) {
+      result[key] = <span class="fn">deepMerge</span>(target[key] || {}, source[key]);
+    } <span class="kw">else</span> {
+      result[key] = source[key];
+    }
+  }
+  <span class="kw">return</span> result;
+}</pre>
+                    <div class="p-tags">
+                      <span class="p-tag" style="background:rgba(0,255,136,.15);color:var(--accent4)">Recursion</span>
+                      <span class="p-tag" style="background:rgba(255,190,11,.15);color:var(--accent5)">Medium</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent5)"></div>
+                <div class="p-header">
+                  <div class="p-num">P9</div>
+                  <div class="p-content">
+                    <div class="p-title">Debounce Function</div>
+                    <div class="p-desc">Implement debounce from scratch — delay function execution until after a wait
+                      period of inactivity. Real use: search input, window resize, scroll events. Leetcode concepts:
+                      closures, higher-order functions.</div>
+                    <pre><span class="kw">function</span> <span class="fn">debounce</span>(fn, wait) {
+  <span class="kw">let</span> timer;
+  <span class="kw">return</span> <span class="kw">function</span>(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      <span class="fn">fn</span>.<span class="fn">apply</span>(<span class="kw">this</span>, args);
+    }, wait);
+  };
+}
+<span class="cmt">// Usage: const onSearch = debounce(search, 300);</span>
+<span class="cmt">// input.addEventListener('input', onSearch);</span></pre>
+                    <div class="p-tags">
+                      <span class="p-tag" style="background:rgba(255,190,11,.15);color:var(--accent5)">Closures</span>
+                      <span class="p-tag" style="background:rgba(255,107,157,.15);color:var(--accent3)">Hard</span>
+                      <span class="p-tag" style="background:rgba(255,107,157,.15);color:var(--accent3)">Interview
+                        Fav</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent3)"></div>
+                <div class="p-header">
+                  <div class="p-num">P10</div>
+                  <div class="p-content">
+                    <div class="p-title">Pipeline / Compose Functions</div>
+                    <div class="p-desc">Implement a <code>pipe</code> function that chains multiple functions
+                      left-to-right, passing output of each as input to next. Real use: data transformations,
+                      middleware, form validation chains.</div>
+                    <pre><span class="kw">const</span> <span class="fn">pipe</span> = (...fns) => x => fns.<span class="fn">reduce</span>((v, f) => <span class="fn">f</span>(v), x);
+
+<span class="cmt">// Usage</span>
+<span class="kw">const</span> process = <span class="fn">pipe</span>(
+  x => x * <span class="num">2</span>,
+  x => x + <span class="num">10</span>,
+  x => x.<span class="fn">toString</span>()
+);
+<span class="fn">process</span>(<span class="num">5</span>); <span class="cmt">// "20"  (5*2=10, 10+10=20, "20")</span>
+
+<span class="cmt">// Compose: right-to-left version</span>
+<span class="kw">const</span> <span class="fn">compose</span> = (...fns) => x => fns.<span class="fn">reduceRight</span>((v, f) => <span class="fn">f</span>(v), x);</pre>
+                    <div class="p-tags">
+                      <span class="p-tag"
+                        style="background:rgba(255,107,157,.15);color:var(--accent3)">Functional</span>
+                      <span class="p-tag" style="background:rgba(255,107,157,.15);color:var(--accent3)">Hard</span>
+                      <span class="p-tag" style="background:rgba(124,92,255,.15);color:var(--accent2)">reduce</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- SECTION: PRACTICE DOM -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div class="section" id="practice-dom">
+          <div class="content-inner">
+            <div class="sec-header">
+              <div class="sec-icon" style="background:rgba(124,92,255,.12)">🏗️</div>
+              <div>
+                <div class="sec-title">DOM Mini Projects — Practice Problems</div>
+                <div class="sec-sub">10 mini-builds that teach real-world DOM skills</div>
+              </div>
+            </div>
+
+            <div class="practice-grid">
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent)"></div>
+                <div class="p-header">
+                  <div class="p-num">D1</div>
+                  <div class="p-content">
+                    <div class="p-title">Todo List (CRUD)</div>
+                    <div class="p-desc">Build a full CRUD todo app: add tasks, mark complete, delete, filter by status
+                      (all/active/completed). Persist to localStorage. Real skill: createElement, event delegation,
+                      classList, data-id pattern.</div>
+                    <div class="p-hint"><strong>Key patterns:</strong> Use <code>data-id</code> to link DOM elements to
+                      data. Store state as an array, re-render on every change. Use event delegation on the list.</div>
+                    <div class="p-tags">
+                      <span class="p-tag"
+                        style="background:rgba(0,212,255,.15);color:var(--accent)">createElement</span>
+                      <span class="p-tag" style="background:rgba(0,255,136,.15);color:var(--accent4)">Delegation</span>
+                      <span class="p-tag"
+                        style="background:rgba(255,190,11,.15);color:var(--accent5)">localStorage</span>
+                      <span class="p-tag" style="background:rgba(0,255,136,.15);color:var(--accent4)">Beginner</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent2)"></div>
+                <div class="p-header">
+                  <div class="p-num">D2</div>
+                  <div class="p-content">
+                    <div class="p-title">Live Search / Filter</div>
+                    <div class="p-desc">Build a searchable list that filters in real-time as the user types. Items
+                      hide/show with CSS transitions. No page reload. Real skill: input event, textContent comparison,
+                      classList toggle, debounce.</div>
+                    <div class="p-hint"><strong>Key patterns:</strong> Listen to <code>input</code> event on search box.
+                      Loop all items, show/hide based on <code>toLowerCase().includes(query)</code>. Add debounce for
+                      performance.</div>
+                    <div class="p-tags">
+                      <span class="p-tag" style="background:rgba(124,92,255,.15);color:var(--accent2)">input
+                        event</span>
+                      <span class="p-tag" style="background:rgba(0,212,255,.15);color:var(--accent)">debounce</span>
+                      <span class="p-tag" style="background:rgba(255,190,11,.15);color:var(--accent5)">Medium</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent4)"></div>
+                <div class="p-header">
+                  <div class="p-num">D3</div>
+                  <div class="p-content">
+                    <div class="p-title">Accordion / FAQ</div>
+                    <div class="p-desc">Build an accordion component where clicking a header expands/collapses its
+                      content. Only one open at a time. Animate with CSS max-height transition. Real skill: closest(),
+                      siblings, classList.toggle.</div>
+                    <div class="p-hint"><strong>Key patterns:</strong> Use event delegation on the container. On click,
+                      find all siblings and close them, then toggle the clicked one. Store open state with dataset.
+                    </div>
+                    <div class="p-tags">
+                      <span class="p-tag" style="background:rgba(0,255,136,.15);color:var(--accent4)">closest()</span>
+                      <span class="p-tag" style="background:rgba(124,92,255,.15);color:var(--accent2)">Siblings</span>
+                      <span class="p-tag" style="background:rgba(0,255,136,.15);color:var(--accent4)">Beginner</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent5)"></div>
+                <div class="p-header">
+                  <div class="p-num">D4</div>
+                  <div class="p-content">
+                    <div class="p-title">Drag & Drop Kanban Board</div>
+                    <div class="p-desc">Build a 3-column Kanban (Todo/Doing/Done) where cards can be dragged between
+                      columns. Real skill: dragstart, dragover, drop events, DataTransfer API, data-id pattern.</div>
+                    <div class="p-hint"><strong>Key patterns:</strong> On <code>dragstart</code>, store card's id in
+                      <code>e.dataTransfer.setData()</code>. On <code>drop</code>, retrieve id, find card, append to new
+                      column. Add <code>dragover: e.preventDefault()</code> to allow drops.
+                    </div>
+                    <div class="p-tags">
+                      <span class="p-tag" style="background:rgba(255,190,11,.15);color:var(--accent5)">DnD API</span>
+                      <span class="p-tag" style="background:rgba(255,107,157,.15);color:var(--accent3)">Hard</span>
+                      <span class="p-tag" style="background:rgba(255,107,157,.15);color:var(--accent3)">Real
+                        World</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent3)"></div>
+                <div class="p-header">
+                  <div class="p-num">D5</div>
+                  <div class="p-content">
+                    <div class="p-title">Infinite Scroll</div>
+                    <div class="p-desc">Load more items as the user scrolls to the bottom. Simulate an API call with
+                      setTimeout. Show a loading spinner. Real skill: IntersectionObserver on a sentinel element, async
+                      data fetching, DocumentFragment for batch insert.</div>
+                    <div class="p-hint"><strong>Key patterns:</strong> Place a sentinel div at the bottom. Observe it
+                      with IntersectionObserver. When it enters viewport, fetch next page, append items, show/hide
+                      spinner.</div>
+                    <div class="p-tags">
+                      <span class="p-tag"
+                        style="background:rgba(255,107,157,.15);color:var(--accent3)">IntersectionObserver</span>
+                      <span class="p-tag" style="background:rgba(124,92,255,.15);color:var(--accent2)">Async</span>
+                      <span class="p-tag" style="background:rgba(255,190,11,.15);color:var(--accent5)">Medium</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent)"></div>
+                <div class="p-header">
+                  <div class="p-num">D6</div>
+                  <div class="p-content">
+                    <div class="p-title">Custom Modal System</div>
+                    <div class="p-desc">Build a reusable modal: open/close with buttons, close on backdrop click and
+                      Escape key, trap focus inside modal, prevent body scroll when open. Real skill: keydown event,
+                      focus management, classList, overflow.</div>
+                    <div class="p-hint"><strong>Key patterns:</strong> Get all focusable elements, trap Tab key. Listen
+                      for Escape on document. Toggle <code>document.body.style.overflow = 'hidden'</code>. Use
+                      <code>aria-modal="true"</code>.
+                    </div>
+                    <div class="p-tags">
+                      <span class="p-tag" style="background:rgba(0,212,255,.15);color:var(--accent)">Focus Trap</span>
+                      <span class="p-tag"
+                        style="background:rgba(255,190,11,.15);color:var(--accent5)">Accessibility</span>
+                      <span class="p-tag" style="background:rgba(255,190,11,.15);color:var(--accent5)">Medium</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent2)"></div>
+                <div class="p-header">
+                  <div class="p-num">D7</div>
+                  <div class="p-content">
+                    <div class="p-title">Multi-Step Form with Validation</div>
+                    <div class="p-desc">Build a 3-step form: each step shows/hides a section, validate before proceeding
+                      to next, show step indicator, collect all data and submit. Real skill: form validation API,
+                      classList, dataset, form events.</div>
+                    <div class="p-hint"><strong>Key patterns:</strong> Use <code>checkValidity()</code> per step.
+                      Show/hide steps with CSS classes. Track current step in a variable. On final submit, gather all
+                      values into one object.</div>
+                    <div class="p-tags">
+                      <span class="p-tag" style="background:rgba(124,92,255,.15);color:var(--accent2)">Form API</span>
+                      <span class="p-tag" style="background:rgba(255,190,11,.15);color:var(--accent5)">Validation</span>
+                      <span class="p-tag" style="background:rgba(255,190,11,.15);color:var(--accent5)">Medium</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent4)"></div>
+                <div class="p-header">
+                  <div class="p-num">D8</div>
+                  <div class="p-content">
+                    <div class="p-title">Scroll-Triggered Animations</div>
+                    <div class="p-desc">Add fade-in / slide-up animations to elements as they scroll into view. Use
+                      IntersectionObserver to trigger CSS class additions. Build a scroll progress bar at the top. Real
+                      skill: IntersectionObserver, classList, scrollY.</div>
+                    <div class="p-hint"><strong>Key patterns:</strong> Set elements to
+                      <code>opacity:0; transform:translateY(30px)</code> initially. Observe them. When intersecting, add
+                      class that animates to <code>opacity:1; transform:none</code>. Unobserve after animating.
+                    </div>
+                    <div class="p-tags">
+                      <span class="p-tag"
+                        style="background:rgba(0,255,136,.15);color:var(--accent4)">IntersectionObserver</span>
+                      <span class="p-tag" style="background:rgba(0,212,255,.15);color:var(--accent)">CSS
+                        Animations</span>
+                      <span class="p-tag" style="background:rgba(0,255,136,.15);color:var(--accent4)">Beginner</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent5)"></div>
+                <div class="p-header">
+                  <div class="p-num">D9</div>
+                  <div class="p-content">
+                    <div class="p-title">Real-Time Character Counter & Auto-Resize Textarea</div>
+                    <div class="p-desc">Build a textarea that: counts remaining characters (live), changes counter color
+                      when near limit, auto-resizes height to fit content, and warns when at limit. Real skill: input
+                      event, scrollHeight, style manipulation.</div>
+                    <div class="p-hint"><strong>Key patterns:</strong> On <code>input</code>, set
+                      <code>textarea.style.height = 'auto'</code> then
+                      <code>textarea.style.height = textarea.scrollHeight + 'px'</code>. Track
+                      <code>maxLength - value.length</code> for counter.
+                    </div>
+                    <div class="p-tags">
+                      <span class="p-tag"
+                        style="background:rgba(255,190,11,.15);color:var(--accent5)">scrollHeight</span>
+                      <span class="p-tag" style="background:rgba(0,212,255,.15);color:var(--accent)">input event</span>
+                      <span class="p-tag" style="background:rgba(0,255,136,.15);color:var(--accent4)">Easy</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-card">
+                <div class="p-card-accent" style="background:var(--accent3)"></div>
+                <div class="p-header">
+                  <div class="p-num">D10</div>
+                  <div class="p-content">
+                    <div class="p-title">Virtual DOM / Diff & Patch</div>
+                    <div class="p-desc">Build a minimal virtual DOM: represent UI as plain objects, diff old vs new
+                      virtual tree, patch only changed real DOM nodes. This is how React/Vue work under the hood. Real
+                      skill: deep understanding of DOM manipulation, recursion, tree diffing.</div>
+                    <pre><span class="cmt">// Virtual node representation</span>
+<span class="kw">const</span> vNode = {
+  tag: <span class="str">'div'</span>, props: {className:<span class="str">'card'</span>},
+  children: [{tag:<span class="str">'h2'</span>, props:{}, children:[<span class="str">'Hello'</span>]}]
+};
+
+<span class="kw">function</span> <span class="fn">createElement</span>(vNode) {
+  <span class="kw">if</span>(<span class="kw">typeof</span> vNode === <span class="str">'string'</span>)
+    <span class="kw">return</span> document.<span class="fn">createTextNode</span>(vNode);
+  <span class="kw">const</span> el = document.<span class="fn">createElement</span>(vNode.<span class="prop">tag</span>);
+  Object.<span class="fn">assign</span>(el, vNode.<span class="prop">props</span>);
+  vNode.<span class="prop">children</span>.<span class="fn">forEach</span>(c => el.<span class="fn">append</span>(<span class="fn">createElement</span>(c)));
+  <span class="kw">return</span> el;
+}</pre>
+                    <div class="p-tags">
+                      <span class="p-tag" style="background:rgba(255,107,157,.15);color:var(--accent3)">Advanced</span>
+                      <span class="p-tag" style="background:rgba(255,107,157,.15);color:var(--accent3)">Hard</span>
+                      <span class="p-tag" style="background:rgba(124,92,255,.15);color:var(--accent2)">Recursion</span>
+                      <span class="p-tag" style="background:rgba(0,212,255,.15);color:var(--accent)">Framework
+                        Internals</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /content -->
+    </div><!-- /main -->
+  </div><!-- /shell -->
+
+  <script>
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      const btns = document.querySelectorAll('.nav-item');
+      btns.forEach(btn => {
+        if (btn.getAttribute('onclick') === `showSection('${id}')`) {
+          btn.classList.add('active');
+        }
+      });
+    }
+
+    function toggleQ(header) {
+      const body = header.nextElementSibling;
+      const arrow = header.querySelector('.q-arrow');
+      const isOpen = body.classList.contains('open');
+      body.classList.toggle('open', !isOpen);
+      arrow.classList.toggle('open', !isOpen);
+    }
+  </script>
+</body>
+
+</html>
